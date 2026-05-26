@@ -112,11 +112,11 @@ Write-Host "ZIP erstellt: Cogwright-$version.zip ($zip_size_mb MB)" -ForegroundC
 
 # --- Manifest fuer Update-Check ---
 $manifest_path = "$release_dir\manifest.json"
-$dl_url = if ($DownloadUrl) { $DownloadUrl } else { "<TODO: URL zur ZIP eintragen>" }
+$dl_url = if ($DownloadUrl) { $DownloadUrl } else { "https://github.com/fs-mediatek/cogwright/releases/download/v$version/Cogwright-$version.zip" }
 $manifest = @{
     version      = $version
     download_url = $dl_url
-    notes        = "Release v$version - siehe CHANGELOG fuer Details."
+    notes        = "Release v$version - siehe Commit-History fuer Details."
     released_at  = (Get-Date -Format "yyyy-MM-ddTHH:mm:ssZ")
 } | ConvertTo-Json -Depth 3
 $manifest | Out-File -FilePath $manifest_path -Encoding UTF8

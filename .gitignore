@@ -8,10 +8,12 @@ logs/
 # Godot user-local (nicht ins Repo)
 export_presets.cfg.local
 
-# Build-Output
+# Build-Output (Binaries — manifest.json ist erlaubt!)
 game/build/
 game/Cogwright-Testbuild/
-release/
+release/*.zip
+release/*.exe
+release/*.pck
 *.tpz
 *.exe
 *.pck

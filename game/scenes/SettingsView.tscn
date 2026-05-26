@@ -194,6 +194,33 @@ layout_mode = 2
 custom_minimum_size = Vector2(0, 16)
 layout_mode = 2
 
+[node name="UpdateRow" type="HBoxContainer" parent="Center/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="StatusLabel" type="Label" parent="Center/VBox/UpdateRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Version: ..."
+theme_override_font_sizes/font_size = 12
+
+[node name="CheckButton" type="Button" parent="Center/VBox/UpdateRow"]
+custom_minimum_size = Vector2(180, 32)
+layout_mode = 2
+text = "Nach Updates suchen"
+theme_override_font_sizes/font_size = 12
+
+[node name="DownloadButton" type="Button" parent="Center/VBox/UpdateRow"]
+custom_minimum_size = Vector2(160, 32)
+layout_mode = 2
+visible = false
+text = "Download öffnen"
+theme_override_font_sizes/font_size = 12
+
+[node name="Spacer5" type="Control" parent="Center/VBox"]
+custom_minimum_size = Vector2(0, 8)
+layout_mode = 2
+
 [node name="BackButton" type="Button" parent="Center/VBox"]
 custom_minimum_size = Vector2(0, 40)
 layout_mode = 2

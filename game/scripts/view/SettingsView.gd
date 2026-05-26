@@ -11,6 +11,9 @@ extends Control
 @onready var _item_sounds_check: CheckButton = $Center/VBox/ItemSoundsRow/Check
 @onready var _screen_shake_check: CheckButton = $Center/VBox/ScreenShakeRow/Check
 @onready var _telemetry_enabled_check: CheckButton = $Center/VBox/TelemetryEnabledRow/Check
+@onready var _update_status_label: Label = $Center/VBox/UpdateRow/StatusLabel
+@onready var _update_check_btn: Button = $Center/VBox/UpdateRow/CheckButton
+@onready var _update_download_btn: Button = $Center/VBox/UpdateRow/DownloadButton
 @onready var _back_btn: Button = $Center/VBox/BackButton
 
 func _ready() -> void:
@@ -32,11 +35,33 @@ func _ready() -> void:
 	_language_option.item_selected.connect(_on_language)
 	_telemetry_enabled_check.button_pressed = SettingsState.telemetry_enabled
 	_telemetry_enabled_check.toggled.connect(_on_telemetry_enabled)
+	_update_check_btn.pressed.connect(_on_update_check)
+	_update_download_btn.pressed.connect(_on_update_download)
 	_back_btn.pressed.connect(_on_back)
+	_refresh_update_label()
+	UpdateChecker.check_finished.connect(func(_s, _m): _refresh_update_label())
 
 func _on_telemetry_enabled(pressed: bool) -> void:
 	SettingsState.set_telemetry_enabled(pressed)
 	AudioManager.ui("click")
+
+func _on_update_check() -> void:
+	AudioManager.ui("click")
+	UpdateChecker.check_now()
+
+func _on_update_download() -> void:
+	AudioManager.ui("click")
+	if UpdateChecker.last_download_url != "":
+		OS.shell_open(UpdateChecker.last_download_url)
+
+func _refresh_update_label() -> void:
+	_update_status_label.text = "v%s  ·  %s" % [AppVersion.VERSION, UpdateChecker.last_message]
+	var has_update: bool = UpdateChecker.last_state == UpdateChecker.CheckState.NEWER and UpdateChecker.last_download_url != ""
+	_update_download_btn.visible = has_update
+	if has_update:
+		_update_status_label.add_theme_color_override("font_color", Color(0.95, 0.78, 0.35))
+	else:
+		_update_status_label.remove_theme_color_override("font_color")
 
 func _on_item_sounds(pressed: bool) -> void:
 	SettingsState.item_sounds_enabled = pressed
