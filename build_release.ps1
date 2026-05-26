@@ -203,7 +203,9 @@ if ($pck_patch_info) {
     $manifest_obj["pck_patch"] = $pck_patch_info
 }
 $manifest = $manifest_obj | ConvertTo-Json -Depth 4
-$manifest | Out-File -FilePath $manifest_path -Encoding UTF8
+# UTF-8 OHNE BOM schreiben (PS5.1 Out-File -Encoding UTF8 fuegt sonst ein BOM ein,
+# das Godots JSON-Parser stoeren kann)
+[System.IO.File]::WriteAllText($manifest_path, $manifest, (New-Object System.Text.UTF8Encoding($false)))
 Write-Host "Manifest geschrieben: $manifest_path" -ForegroundColor Green
 
 # --- Installer-Build (Inno Setup) ---
