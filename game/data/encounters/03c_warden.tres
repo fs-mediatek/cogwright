@@ -6,7 +6,7 @@
 script = ExtResource("1")
 id = &"warden"
 display_name = "Wächter-Automat"
-description = "Schwere Eisenklauen, kombiniert mit Druckhammer und Reparatur-Modul. Hartnäckig."
+description = "Schwere Eisenklauen, kombiniert mit Druckhammer und Funkenspeier. Hartnäckig."
 base_hp = 175
-item_ids = Array[StringName]([&"iron_claw", &"pressure_hammer", &"repair_drone", &"spark_spitter"])
-slot_indices = Array[int]([0, 1, 4, 6])
+item_ids = Array[StringName]([&"iron_claw", &"pressure_hammer", &"spark_spitter"])
+slot_indices = Array[int]([0, 1, 6])
