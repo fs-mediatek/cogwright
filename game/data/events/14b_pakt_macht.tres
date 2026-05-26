@@ -6,7 +6,7 @@
 script = ExtResource("1")
 id = &"pakt_macht"
 title = "Der Tribut der Macht"
-description = "„Macht für den ganzen Run", flüstert die Esse. „Doch erst musst du etwas opfern. Wähle, was du gibst."
+description = "„Macht für den ganzen Run“, flüstert die Esse. „Doch erst musst du etwas opfern. Wähle, was du gibst.“"
 choice_labels = Array[String](["35 HP geben → +8% Schaden (Run)", "50 Gold geben → +12% Schaden (Run)", "Doch nicht"])
 choice_descriptions = Array[String]([
 	"Dauerhafter Schadens-Segen, bezahlt mit Lebenskraft.",

@@ -6,7 +6,7 @@
 script = ExtResource("1")
 id = &"pakt_gold"
 title = "Der Preis des Goldes"
-description = "Münzen quellen aus der Glut. „Nimm sie", zischt die Esse. „Doch meine Gunst hinterlässt einen Fluch, der den ganzen Run anhält."
+description = "Münzen quellen aus der Glut. „Nimm sie“, zischt die Esse. „Doch meine Gunst hinterlässt einen Fluch, der den ganzen Run anhält.“"
 choice_labels = Array[String](["80 Gold → -10% Schaden (Run)", "40 Gold → -5% Schaden (Run)", "Finger weg"])
 choice_descriptions = Array[String]([
 	"Viel Gold, schwerer Fluch auf den ganzen Run.",
