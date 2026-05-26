@@ -3,7 +3,7 @@
 # Zentrale Versions-Konstante â€” wird bei jedem Release manuell bumpd
 # oder via build_release.ps1 -BumpPatch.
 # Format: MAJOR.MINOR.PATCH (SemVer-light).
-const VERSION: String = "0.2.2"
+const VERSION: String = "0.2.3"
 
 # URL fuer die Version-Check-Datei (manifest.json).
 # Format: {"version": "0.2.1", "download_url": "https://...", "notes": "..."}
