@@ -17,6 +17,8 @@ const CHARACTER_PASSIVES: Dictionary = {
 	"reactive": {"damage_tag": &"reactive", "damage_bonus": 0.25, "heal_bonus": 0,  "ability": "sabotage"},
 	"gunner":   {"damage_tag": &"ranged",   "damage_bonus": 0.20, "heal_bonus": 0,  "ability": "salvo_burst",
 	             "cd_penalty_tag": &"reactive", "cd_penalty_amount": 0.20},
+	"mastermind": {"damage_tag": &"",       "damage_bonus": 0.0,  "heal_bonus": 0,  "ability": "improvise",
+	             "tag_diversity_bonus": 0.08},
 }
 
 const CHARACTER_ABILITIES: Dictionary = {
@@ -25,6 +27,7 @@ const CHARACTER_ABILITIES: Dictionary = {
 	"emergency_repair":   {"name": "Notfall-Reparatur",    "desc": "+50 HP sofort."},
 	"sabotage":           {"name": "Sabotage",             "desc": "Gegner: -40% Cooldown-Speed für 5s + Brand 20 DMG."},
 	"salvo_burst":        {"name": "Volle Salve",          "desc": "Alle [ranged]-Items im Turm feuern sofort."},
+	"improvise":          {"name": "Improvisation",        "desc": "Alle Items im Turm feuern sofort."},
 }
 
 const BASE_HP: int = 200

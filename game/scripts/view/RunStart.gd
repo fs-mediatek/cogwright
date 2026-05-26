@@ -31,6 +31,14 @@ const STARTER_SETS := [
 		"description": "Drillingsgeschütz auf der Spitze, Munitionsband auf der Werkstatt sorgt für –30% CD darüber, Panzerung im Fundament gibt +30 Schild. [ranged] +20%, [reactive] +20% CD-Penalty.",
 		"item_ids": ["triple_cannon", "ammo_belt", "armor_plate"],
 	},
+	{
+		"id": "mastermind",
+		"name": "Mastermind",
+		"description": "Kein festes Set: 1 Anker (Druckhammer) + 2 ZUFÄLLIGE Items pro Run. Passive [b]Universalist[/b]: +8% Schaden je einzigartigem Tag im Turm. Plus 1× gratis Reroll pro Item-Belohnung. Adaptiere aus dem Zufall das beste Setup.",
+		"item_ids": ["pressure_hammer"],
+		"random_pool": true,
+		"random_count": 2,
+	},
 ]
 
 @onready var _set_container: HBoxContainer = $Layout/SetsContainer
@@ -396,10 +404,45 @@ func _on_set_chosen(set_def: Dictionary) -> void:
 	AudioManager.ui("select")
 	AudioManager.sting("run_start", -4.0)
 	var starter_items: Array[Item] = []
+	# Fixe Items (Anker)
 	for item_id in set_def["item_ids"]:
 		starter_items.append(load("res://data/items/%s.tres" % item_id))
+	# Mastermind: zusaetzlich N zufaellige Items aus dem ganzen Pool
+	if set_def.get("random_pool", false):
+		var count: int = int(set_def.get("random_count", 2))
+		var fixed_ids: Array = set_def["item_ids"]
+		var pool: Array[String] = _all_item_ids()
+		pool.shuffle()
+		var added: int = 0
+		for id in pool:
+			if added >= count:
+				break
+			if id in fixed_ids:
+				continue
+			var path: String = "res://data/items/%s.tres" % id
+			if ResourceLoader.exists(path):
+				starter_items.append(load(path))
+				added += 1
 	RunState.start_new_run(starter_items, -1, _selected_length, String(set_def["id"]))
 	get_tree().change_scene_to_file("res://scenes/MapView.tscn")
+
+func _all_item_ids() -> Array[String]:
+	# Scannt data/items/ — funktioniert auch im Export (PCK gemountet).
+	var ids: Array[String] = []
+	var dir := DirAccess.open("res://data/items/")
+	if dir == null:
+		return ids
+	dir.list_dir_begin()
+	var f: String = dir.get_next()
+	while f != "":
+		if not dir.current_is_dir() and f.ends_with(".tres"):
+			ids.append(f.get_basename())
+		elif f.ends_with(".tres.remap"):
+			# Im Export heissen die Files .tres.remap
+			ids.append(f.replace(".tres.remap", ""))
+		f = dir.get_next()
+	dir.list_dir_end()
+	return ids
 
 func _on_back() -> void:
 	AudioManager.ui("back")

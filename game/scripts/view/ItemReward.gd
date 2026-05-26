@@ -12,9 +12,13 @@ const ALL_ITEM_IDS: Array[String] = [
 	"gear_grinder", "flame_lance", "steam_whistle", "bellows_lung", "brass_telescope",
 	"chronometer", "brass_horn", "siphon_pump", "iron_helm", "alchemist_flask",
 	"firebomb", "ice_diffuser", "steel_aegis", "phosphor_lobber", "aegis_pump",
+	"triple_cannon", "ammo_belt", "armor_plate", "grappling_hook", "stabilizer_brace", "grenade_launcher",
 ]
 const HEAL_PERCENT: float = 0.50  # Werkstatt-Reparatur heilt 50% des Max-HP
 const SKIP_GOLD_REWARD: int = 12  # Anreiz, eine Belohnung zu überspringen
+
+var _reroll_offset: int = 0
+var _reroll_used: bool = false
 
 @onready var _items_container: HBoxContainer = $Layout/ItemsContainer
 @onready var _skip_button: Button = $Layout/Footer/SkipButton
@@ -41,6 +45,7 @@ func _ready() -> void:
 		]
 	_subtitle_label.text = sub
 	_skip_button.text = "Überspringen (+%d Gold)" % _skip_gold_reward()
+	_setup_mastermind_reroll()
 	_build_inventory_strip()
 	_build_damage_breakdown()
 	_build_choices()
@@ -207,7 +212,7 @@ func _build_choices() -> void:
 	for child in _items_container.get_children():
 		child.queue_free()
 	var rng := RandomNumberGenerator.new()
-	rng.seed = RunState.run_seed + RunState.current_encounter_idx * 7919
+	rng.seed = RunState.run_seed + RunState.current_encounter_idx * 7919 + _reroll_offset * 104729
 	# Score jedes Item nach Build-Synergie; zufälliger Tie-Breaker für Variation
 	var scored: Array[Dictionary] = []
 	for item_id in ALL_ITEM_IDS:
@@ -519,6 +524,33 @@ func _on_repair_chosen(heal_amount: int) -> void:
 		CoopManager.sync_action("reward_repair", {"amount": heal_amount})
 	else:
 		_apply_repair(heal_amount)
+
+var _reroll_btn: Button = null
+
+func _setup_mastermind_reroll() -> void:
+	# Nur fuer Mastermind: 1x gratis Reroll pro Item-Belohnung.
+	if RunState.current_character_id != "mastermind":
+		return
+	var footer: HBoxContainer = $Layout/Footer
+	_reroll_btn = Button.new()
+	_reroll_btn.custom_minimum_size = Vector2(220, 36)
+	_reroll_btn.text = "🎲 Neu würfeln (1x gratis)"
+	_reroll_btn.add_theme_font_size_override("font_size", 13)
+	_reroll_btn.pressed.connect(_on_reroll)
+	# Vor dem Skip-Button einsortieren
+	footer.add_child(_reroll_btn)
+	footer.move_child(_reroll_btn, 0)
+
+func _on_reroll() -> void:
+	if _reroll_used:
+		return
+	_reroll_used = true
+	_reroll_offset += 1
+	AudioManager.ui("select")
+	if _reroll_btn != null:
+		_reroll_btn.disabled = true
+		_reroll_btn.text = "🎲 Bereits gewürfelt"
+	_build_choices()
 
 func _on_skip() -> void:
 	if RunState.is_coop:

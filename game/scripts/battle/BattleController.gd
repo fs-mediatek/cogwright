@@ -547,13 +547,25 @@ func _get_character_bonus_for_item(tower: Tower, item: Item) -> float:
 	if tower != player_tower or player_character_id == "":
 		return 0.0
 	var passive: Dictionary = RunState.CHARACTER_PASSIVES.get(player_character_id, {})
+	var bonus: float = 0.0
+	# Mastermind "Universalist": +X% pro einzigartigem Tag im Turm (gilt fuer alle Items)
+	var diversity: float = float(passive.get("tag_diversity_bonus", 0.0))
+	if diversity > 0.0:
+		bonus += float(_unique_tag_count(tower)) * diversity * 100.0
+	# Standard-Tag-Bonus (z.B. Pyrotechniker [fire] +10%)
 	var pass_tag: StringName = passive.get("damage_tag", &"")
 	var pass_bonus: float = float(passive.get("damage_bonus", 0.0))
-	if pass_tag == &"" or pass_bonus <= 0.0:
-		return 0.0
-	if item.tags.has(pass_tag):
-		return pass_bonus * 100.0   # in Prozent-Punkten
-	return 0.0
+	if pass_tag != &"" and pass_bonus > 0.0 and item.tags.has(pass_tag):
+		bonus += pass_bonus * 100.0
+	return bonus
+
+func _unique_tag_count(tower: Tower) -> int:
+	var seen: Dictionary = {}
+	for slot in tower.slots:
+		if slot.item != null:
+			for t in slot.item.tags:
+				seen[t] = true
+	return seen.size()
 
 # --- Status-Effekt-API ---
 

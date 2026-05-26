@@ -64,6 +64,7 @@ $mapping = @{
     # A4 — Pyrotechniker (Neugenerierung im neuen Style)
     "A4.png" = @{ target = "$game_assets\characters\char_fire.png"; remove_bg = $false }
     "A5.png" = @{ target = "$game_assets\characters\char_gunner.png"; remove_bg = $false }
+    "A6.png" = @{ target = "$game_assets\characters\char_mastermind.png"; remove_bg = $false }
     # Z — Hero-Backgrounds (volles Bild)
     "Z1.png" = @{ target = "$game_assets\backgrounds\bg_main_menu.png"; remove_bg = $false }
     "Z2.png" = @{ target = "$game_assets\backgrounds\bg_map_parchment.png"; remove_bg = $false }

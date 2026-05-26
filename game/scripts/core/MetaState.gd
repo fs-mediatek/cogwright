@@ -142,6 +142,7 @@ const ALL_CHARACTERS: Dictionary = {
 	"blunt": {"name": "Schmiedin", "unlock_condition": "Besiege den Endboss zum ersten Mal"},
 	"reactive": {"name": "Saboteur", "unlock_condition": "Besiege den Endboss dreimal"},
 	"gunner": {"name": "Kanonenmeister", "unlock_condition": "Schließe 5 Runs ab (egal ob Sieg oder Niederlage)"},
+	"mastermind": {"name": "Mastermind", "unlock_condition": "Besiege den Endboss mit 3 verschiedenen Charakteren"},
 }
 
 # Werkstatt-Upgrades (Meta-Progression außerhalb der Kämpfe)
@@ -563,6 +564,13 @@ func on_run_won() -> void:
 	# Kanonenmeister: 5 Run-Versuche (egal Sieg/Niederlage)
 	if runs_attempted >= 5:
 		_try_unlock_character("gunner")
+	# Mastermind: Endboss mit 3 verschiedenen Charakteren besiegt
+	var chars_with_win: int = 0
+	for k in character_wins.keys():
+		if int(character_wins[k]) >= 1:
+			chars_with_win += 1
+	if chars_with_win >= 3:
+		_try_unlock_character("mastermind")
 	# Heat freischalten: nach jedem Sieg auf der aktuellen Heat-Stufe wird die nächste verfügbar
 	if selected_heat >= max_heat_unlocked and max_heat_unlocked < 10:
 		max_heat_unlocked = selected_heat + 1

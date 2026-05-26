@@ -12,6 +12,7 @@ const ALL_ITEM_IDS: Array[String] = [
 	"gear_grinder", "flame_lance", "steam_whistle", "bellows_lung", "brass_telescope",
 	"chronometer", "brass_horn", "siphon_pump", "iron_helm", "alchemist_flask",
 	"firebomb", "ice_diffuser", "steel_aegis", "phosphor_lobber", "aegis_pump",
+	"triple_cannon", "ammo_belt", "armor_plate", "grappling_hook", "stabilizer_brace", "grenade_launcher",
 ]
 
 const REROLL_COST: int = 5
