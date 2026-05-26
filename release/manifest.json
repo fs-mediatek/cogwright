@@ -10,12 +10,5 @@
                   "Cogwright.pck":  "f5c1956ca49cdff5c82b915c1fa02e2454ef7e3d3b4ec798f1ce63fbfc85c481",
                   "Cogwright.exe":  "0c0690839e6c9d181b74290f239c8fce67f5279517454e78a57cd9b580dfa465",
                   "hpatchz.exe":  "d4ba353cea752216d6c2dc32669681b55bd50dee24a58b2cc41e9933d81e91ff"
-              },
-    "pck_patch":  {
-                      "from_version":  "0.4.0",
-                      "from_pck_sha256":  "f5c1956ca49cdff5c82b915c1fa02e2454ef7e3d3b4ec798f1ce63fbfc85c481",
-                      "file":  "Cogwright-0.4.0-to-0.4.0.pck.patch",
-                      "sha256":  "73885021a8104cae60fd32ac5f9ac36f960e7e1b068cacf12216e0b0a25e6221",
-                      "size":  56
-                  }
+              }
 }
