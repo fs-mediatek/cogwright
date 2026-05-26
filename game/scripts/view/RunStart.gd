@@ -307,9 +307,10 @@ func _build_set_cards() -> void:
 
 func _make_set_card(set_def: Dictionary, is_unlocked: bool = true) -> PanelContainer:
 	var panel := PanelContainer.new()
-	# 280 px statt 360 — sonst passen 5 Klassen-Karten nicht auf 1920er Screens (Bug-Report @xtract94)
+	# Feste Breite + HFlowContainer-Parent: Karten brechen bei schmalen Fenstern
+	# in eine zweite Reihe um statt rauszufliegen (robust fuer 1366px-Laptops + kuenftige Klassen).
 	panel.custom_minimum_size = Vector2(280, 380)
-	panel.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	panel.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 	var sb := StyleBoxFlat.new()
 	if is_unlocked:
 		sb.bg_color = Color(0.15, 0.13, 0.10, 1.0)

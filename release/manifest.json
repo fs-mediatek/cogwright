@@ -1,21 +1,21 @@
 {
-    "version":  "0.3.1",
-    "notes":  "Release v0.3.1 - siehe Commit-History fuer Details.",
-    "released_at":  "2026-05-26T21:21:40Z",
-    "download_url":  "https://github.com/fs-mediatek/cogwright/releases/download/v0.3.1/Cogwright-Setup-0.3.1.exe",
-    "base_url":  "https://github.com/fs-mediatek/cogwright/releases/download/v0.3.1/",
+    "version":  "0.3.2",
+    "notes":  "Release v0.3.2 - siehe Commit-History fuer Details.",
+    "released_at":  "2026-05-26T21:26:05Z",
+    "download_url":  "https://github.com/fs-mediatek/cogwright/releases/download/v0.3.2/Cogwright-Setup-0.3.2.exe",
+    "base_url":  "https://github.com/fs-mediatek/cogwright/releases/download/v0.3.2/",
     "files":  {
                   "Cogwright-Update.bat":  "a82ba0b1d11d1d2455284bc734388de2731042cfa6be4393b380e1e7bdba7904",
                   "Cogwright-Update.ps1":  "c9a11f34540e099366275023b0aee358c2ce51050ddd8a5c67cbd5abdf073676",
-                  "Cogwright.pck":  "8127b3304af7d887d93617e8274a0abd30faf572441d8979377da6aa57022b9f",
+                  "Cogwright.pck":  "1f47b163b28dc74ddcaf7c077050836a517c8cdcd9a37c0d5c81d70f1a6979ed",
                   "Cogwright.exe":  "0c0690839e6c9d181b74290f239c8fce67f5279517454e78a57cd9b580dfa465",
                   "hpatchz.exe":  "d4ba353cea752216d6c2dc32669681b55bd50dee24a58b2cc41e9933d81e91ff"
               },
     "pck_patch":  {
-                      "from_version":  "0.3.0",
-                      "from_pck_sha256":  "8fdc5e6be5cfd8b096586ad1b78fdf985ed91f3042c146337942813dd0bfc217",
-                      "file":  "Cogwright-0.3.0-to-0.3.1.pck.patch",
-                      "sha256":  "80d792eacdb9f3abc4b106a068313abb8f75b2a053e2eb8cdaa6227f1b98b5db",
-                      "size":  5991
+                      "from_version":  "0.3.1",
+                      "from_pck_sha256":  "8127b3304af7d887d93617e8274a0abd30faf572441d8979377da6aa57022b9f",
+                      "file":  "Cogwright-0.3.1-to-0.3.2.pck.patch",
+                      "sha256":  "0efa536556b34f3c94c40280a170e9ef38b62a250b22d3c43791a74b88169980",
+                      "size":  16078
                   }
 }

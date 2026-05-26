@@ -140,10 +140,11 @@ layout_mode = 2
 text = "Verwalten"
 theme_override_font_sizes/font_size = 12
 
-[node name="SetsContainer" type="HBoxContainer" parent="Layout"]
+[node name="SetsContainer" type="HFlowContainer" parent="Layout"]
 layout_mode = 2
 size_flags_vertical = 3
-theme_override_constants/separation = 20
+theme_override_constants/h_separation = 16
+theme_override_constants/v_separation = 16
 alignment = 1
 
 [node name="Footer" type="HBoxContainer" parent="Layout"]
