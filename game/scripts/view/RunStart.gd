@@ -299,7 +299,8 @@ func _build_set_cards() -> void:
 
 func _make_set_card(set_def: Dictionary, is_unlocked: bool = true) -> PanelContainer:
 	var panel := PanelContainer.new()
-	panel.custom_minimum_size = Vector2(360, 380)
+	# 280 px statt 360 — sonst passen 5 Klassen-Karten nicht auf 1920er Screens (Bug-Report @xtract94)
+	panel.custom_minimum_size = Vector2(280, 380)
 	panel.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	var sb := StyleBoxFlat.new()
 	if is_unlocked:

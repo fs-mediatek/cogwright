@@ -33,6 +33,8 @@ TelemetryClient="*res://scripts/core/TelemetryClient.gd"
 
 window/size/viewport_width=1500
 window/size/viewport_height=860
+window/size/mode=3
+window/size/resizable=true
 window/stretch/mode="canvas_items"
 window/stretch/aspect="expand"
 
