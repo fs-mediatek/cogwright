@@ -15,6 +15,9 @@ var locale: String = "de"
 var battle_speed: float = 1.0   # persistente Battle-Geschwindigkeit (×0.5/×1/×2/×4)
 var item_sounds_enabled: bool = true   # Per-Item-Trigger-Sounds (auch unabhaengig von SFX-Lautstaerke)
 var screen_shake_enabled: bool = true   # Screen-Shake bei schweren Treffern
+var telemetry_enabled: bool = true   # Battle-Logs senden (Default an — User kann opt-out)
+var telemetry_webhook_url: String = ""   # Optionaler Override; leer = Built-in nutzen
+var telemetry_only_on_loss: bool = false   # nur bei Niederlagen senden
 
 func _ready() -> void:
 	_ensure_audio_buses()
@@ -45,6 +48,9 @@ func load_settings() -> void:
 	battle_speed = cfg.get_value("gameplay", "battle_speed", 1.0)
 	item_sounds_enabled = cfg.get_value("gameplay", "item_sounds_enabled", true)
 	screen_shake_enabled = cfg.get_value("gameplay", "screen_shake_enabled", true)
+	telemetry_enabled = cfg.get_value("telemetry", "enabled", true)
+	telemetry_webhook_url = cfg.get_value("telemetry", "webhook_url", "")
+	telemetry_only_on_loss = cfg.get_value("telemetry", "only_on_loss", false)
 
 func save_settings() -> void:
 	var cfg := ConfigFile.new()
@@ -56,6 +62,9 @@ func save_settings() -> void:
 	cfg.set_value("gameplay", "battle_speed", battle_speed)
 	cfg.set_value("gameplay", "item_sounds_enabled", item_sounds_enabled)
 	cfg.set_value("gameplay", "screen_shake_enabled", screen_shake_enabled)
+	cfg.set_value("telemetry", "enabled", telemetry_enabled)
+	cfg.set_value("telemetry", "webhook_url", telemetry_webhook_url)
+	cfg.set_value("telemetry", "only_on_loss", telemetry_only_on_loss)
 	cfg.save(SAVE_PATH)
 
 func apply_all() -> void:
@@ -114,5 +123,20 @@ func set_fullscreen(enabled: bool) -> void:
 func set_locale(new_locale: String) -> void:
 	locale = new_locale
 	apply_locale()
+	save_settings()
+	settings_changed.emit()
+
+func set_telemetry_enabled(v: bool) -> void:
+	telemetry_enabled = v
+	save_settings()
+	settings_changed.emit()
+
+func set_telemetry_webhook_url(url: String) -> void:
+	telemetry_webhook_url = url.strip_edges()
+	save_settings()
+	settings_changed.emit()
+
+func set_telemetry_only_on_loss(v: bool) -> void:
+	telemetry_only_on_loss = v
 	save_settings()
 	settings_changed.emit()

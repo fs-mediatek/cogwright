@@ -178,6 +178,22 @@ theme_override_colors/font_color = Color(0.65, 0.58, 0.45, 1)
 custom_minimum_size = Vector2(0, 16)
 layout_mode = 2
 
+[node name="TelemetryEnabledRow" type="HBoxContainer" parent="Center/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="Label" type="Label" parent="Center/VBox/TelemetryEnabledRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Anonyme Test-Logs senden (hilft beim Balancing)"
+
+[node name="Check" type="CheckButton" parent="Center/VBox/TelemetryEnabledRow"]
+layout_mode = 2
+
+[node name="Spacer4" type="Control" parent="Center/VBox"]
+custom_minimum_size = Vector2(0, 16)
+layout_mode = 2
+
 [node name="BackButton" type="Button" parent="Center/VBox"]
 custom_minimum_size = Vector2(0, 40)
 layout_mode = 2

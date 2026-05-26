@@ -10,6 +10,7 @@ extends Control
 @onready var _language_option: OptionButton = $Center/VBox/LanguageRow/OptionButton
 @onready var _item_sounds_check: CheckButton = $Center/VBox/ItemSoundsRow/Check
 @onready var _screen_shake_check: CheckButton = $Center/VBox/ScreenShakeRow/Check
+@onready var _telemetry_enabled_check: CheckButton = $Center/VBox/TelemetryEnabledRow/Check
 @onready var _back_btn: Button = $Center/VBox/BackButton
 
 func _ready() -> void:
@@ -29,7 +30,13 @@ func _ready() -> void:
 	_screen_shake_check.toggled.connect(_on_screen_shake)
 	_language_option.selected = 0 if SettingsState.locale == "de" else 1
 	_language_option.item_selected.connect(_on_language)
+	_telemetry_enabled_check.button_pressed = SettingsState.telemetry_enabled
+	_telemetry_enabled_check.toggled.connect(_on_telemetry_enabled)
 	_back_btn.pressed.connect(_on_back)
+
+func _on_telemetry_enabled(pressed: bool) -> void:
+	SettingsState.set_telemetry_enabled(pressed)
+	AudioManager.ui("click")
 
 func _on_item_sounds(pressed: bool) -> void:
 	SettingsState.item_sounds_enabled = pressed

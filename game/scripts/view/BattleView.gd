@@ -287,6 +287,8 @@ func _do_battle_end_transition() -> void:
 	RunState.last_battle_outcome = _battle.outcome_name()
 	RunState.last_encounter_name = _battle.defender.name
 	RunState.last_battle_damage_breakdown = _battle.get_player_damage_breakdown()
+	# Telemetrie: optional Battle-Log an Discord-Webhook senden
+	_send_telemetry_if_enabled()
 	# War das der Boss?
 	var was_boss: bool = false
 	if RunState.current_map != null:
@@ -361,6 +363,46 @@ func _pick_and_play_battle_music() -> void:
 func _exit_tree() -> void:
 	# Sounds aus diesem Battle stoppen, bevor die nächste Szene anfängt
 	AudioManager.stop_all_sfx()
+
+func _send_telemetry_if_enabled() -> void:
+	if not TelemetryClient.is_active():
+		return
+	var is_victory: bool = _battle.outcome == BattleController.Outcome.ATTACKER_WIN
+	if SettingsState.telemetry_only_on_loss and is_victory:
+		return
+	# Charakter-Anzeige aus ALL_CHARACTERS
+	var char_id: String = RunState.current_character_id
+	var char_name: String = String(MetaState.ALL_CHARACTERS.get(char_id, {"name": char_id})["name"])
+	# Aktive Perks
+	var perks_display: Array[String] = []
+	for pid in MetaState.selected_perks:
+		var pinfo: Dictionary = MetaState.PERKS.get(pid, {})
+		perks_display.append(String(pinfo.get("name", pid)))
+	# Tower-Layout textuell pro Etage
+	var layout_lines: Array[String] = []
+	for floor_idx in range(2, -1, -1):
+		var floor_name: String = RunState.floors[floor_idx].display_name if floor_idx < RunState.floors.size() else "?"
+		var slot_names: Array[String] = []
+		for slot_idx in range(3):
+			var idx: int = floor_idx * 3 + slot_idx
+			var item: Item = RunState.tower_layout[idx] if idx < RunState.tower_layout.size() else null
+			slot_names.append(item.display_name if item != null else "—")
+		layout_lines.append("%s: %s" % [floor_name, ", ".join(slot_names)])
+	# Log-Auszug: letzte N Zeilen
+	var full_log: Array = _battle.get_log()
+	var tail: Array = full_log.slice(max(0, full_log.size() - TelemetryClient.MAX_LOG_LINES), full_log.size())
+	TelemetryClient.send_battle_log({
+		"victory": is_victory,
+		"outcome": _battle.outcome_name(),
+		"character": char_name,
+		"heat": MetaState.selected_heat,
+		"encounter_name": _battle.defender.name,
+		"player_hp_end": _battle.attacker.hp,
+		"player_max_hp": _battle.attacker.max_hp,
+		"perks": perks_display,
+		"tower_layout_text": "\n".join(layout_lines),
+		"log_excerpt": "\n".join(tail),
+	})
 
 # --- Signal Handlers ---
 

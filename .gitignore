@@ -41,3 +41,15 @@ Thumbs.db
 # Audio-Diag, Battle-Diag (debug-Logs)
 audio_diag.log
 bossintro_diag.log
+
+# Secrets — niemals committen
+.discord_*
+*.token
+*.secret
+
+# Agent-/Session-Logs
+.claude/
+
+# Lose Tool-Archive im Projekt-Root (Godot-Binary-Zip, Doku-Zip)
+/Godot_v4.6.3-stable_win64*.zip
+/godot-docs-*.zip
