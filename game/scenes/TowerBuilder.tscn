@@ -1,0 +1,177 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/view/TowerBuilder.gd" id="1"]
+[ext_resource type="Script" path="res://scripts/view/AtmosphericBackground.gd" id="2"]
+
+[node name="TowerBuilder" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1")
+
+[node name="Background" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.106, 0.082, 0.063, 1)
+
+[node name="Atmosphere" type="Control" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("2")
+cog_count = 0
+steam_puff_count = 0
+pipe_columns = 0
+rng_seed = 42
+
+[node name="Layout" type="VBoxContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 24.0
+offset_top = 18.0
+offset_right = -24.0
+offset_bottom = -18.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 14
+
+[node name="Header" type="HBoxContainer" parent="Layout"]
+layout_mode = 2
+theme_override_constants/separation = 24
+
+[node name="Title" type="Label" parent="Layout/Header"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_type_variation = &"GameHeading"
+text = "Turm aufbauen"
+
+[node name="EncounterLabel" type="Label" parent="Layout/Header"]
+layout_mode = 2
+text = "Encounter 1 / 5"
+theme_override_font_sizes/font_size = 16
+
+[node name="HpLabel" type="Label" parent="Layout/Header"]
+layout_mode = 2
+text = "Turm-HP: 220 / 220"
+theme_override_font_sizes/font_size = 16
+
+[node name="Body" type="HBoxContainer" parent="Layout"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/separation = 20
+
+[node name="InventoryPanel" type="PanelContainer" parent="Layout/Body"]
+custom_minimum_size = Vector2(620, 0)
+layout_mode = 2
+
+[node name="VBox" type="VBoxContainer" parent="Layout/Body/InventoryPanel"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="InventoryTitle" type="Label" parent="Layout/Body/InventoryPanel/VBox"]
+layout_mode = 2
+text = "Inventar"
+theme_override_font_sizes/font_size = 18
+
+[node name="HintLabel" type="Label" parent="Layout/Body/InventoryPanel/VBox"]
+layout_mode = 2
+text = "Klick ein Item, dann einen Turm-Slot."
+autowrap_mode = 3
+theme_override_font_sizes/font_size = 11
+theme_override_colors/font_color = Color(0.65, 0.6, 0.5, 1)
+
+[node name="WerkbankPanel" type="PanelContainer" parent="Layout/Body/InventoryPanel/VBox"]
+layout_mode = 2
+visible = false
+
+[node name="WerkbankVBox" type="VBoxContainer" parent="Layout/Body/InventoryPanel/VBox/WerkbankPanel"]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="WerkbankTitle" type="Label" parent="Layout/Body/InventoryPanel/VBox/WerkbankPanel/WerkbankVBox"]
+layout_mode = 2
+text = "✦ Werkbank — 3 gleiche Items zusammenfügen"
+theme_override_font_sizes/font_size = 13
+theme_override_colors/font_color = Color(0.95, 0.78, 0.35, 1)
+
+[node name="WerkbankRow" type="VBoxContainer" parent="Layout/Body/InventoryPanel/VBox/WerkbankPanel/WerkbankVBox"]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="ItemsFlow" type="HFlowContainer" parent="Layout/Body/InventoryPanel/VBox"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/h_separation = 8
+theme_override_constants/v_separation = 8
+
+[node name="TowerPanel" type="PanelContainer" parent="Layout/Body"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="VBox" type="VBoxContainer" parent="Layout/Body/TowerPanel"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="TowerTitle" type="Label" parent="Layout/Body/TowerPanel/VBox"]
+layout_mode = 2
+text = "Werkstatt-Turm"
+horizontal_alignment = 1
+theme_override_font_sizes/font_size = 18
+
+[node name="FloorsContainer" type="VBoxContainer" parent="Layout/Body/TowerPanel/VBox"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/separation = 14
+
+[node name="DetailPanel" type="PanelContainer" parent="Layout/Body"]
+custom_minimum_size = Vector2(340, 0)
+layout_mode = 2
+
+[node name="DetailVBox" type="VBoxContainer" parent="Layout/Body/DetailPanel"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="DetailTitle" type="Label" parent="Layout/Body/DetailPanel/DetailVBox"]
+layout_mode = 2
+text = "Details"
+theme_override_font_sizes/font_size = 18
+theme_override_colors/font_color = Color(0.95, 0.85, 0.55, 1)
+
+[node name="DetailContent" type="RichTextLabel" parent="Layout/Body/DetailPanel/DetailVBox"]
+layout_mode = 2
+size_flags_vertical = 3
+bbcode_enabled = true
+fit_content = true
+scroll_active = true
+text = "Hover über ein Item oder einen Slot, um Details zu sehen."
+theme_override_font_sizes/normal_font_size = 13
+theme_override_colors/default_color = Color(0.88, 0.82, 0.68, 1)
+
+[node name="Footer" type="HBoxContainer" parent="Layout"]
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="SelectedLabel" type="Label" parent="Layout/Footer"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Kein Item ausgewählt"
+
+[node name="StartButton" type="Button" parent="Layout/Footer"]
+custom_minimum_size = Vector2(280, 40)
+layout_mode = 2
+disabled = true
+text = "Battle starten (0/9 platziert)"
+theme_override_font_sizes/font_size = 16

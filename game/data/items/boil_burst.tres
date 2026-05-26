@@ -1,0 +1,26 @@
+[gd_resource type="Resource" script_class="Item" load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://data/Item.gd" id="1"]
+[ext_resource type="Script" path="res://data/effects/TagBonusEffect.gd" id="2"]
+[ext_resource type="Texture2D" path="res://assets/items/boil_burst.png" id="3"]
+
+[sub_resource type="Resource" id="effect_steambuff"]
+script = ExtResource("2")
+hook = 1
+tag_filter = &""
+bonus_tag = &"steam"
+bonus_damage_percent = 30.0
+duration_seconds = 6.0
+
+[resource]
+script = ExtResource("1")
+id = &"boil_burst"
+display_name = "Siedekessel"
+description = "Verstärkt periodisch alle [steam]-Items im Turm um 30% Schaden für 6 Sekunden."
+flavor_text = "Die Werkstatt riecht nach Wasser, das wütend wird."
+rarity = 1
+tags = Array[StringName]([&"steam", &"mechanical", &"modifier"])
+floor_affinity = Array[StringName]([&"workshop"])
+cooldown_seconds = 3.5
+effects = Array[ExtResource("2")]([SubResource("effect_steambuff")])
+icon = ExtResource("3")

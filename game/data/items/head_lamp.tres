@@ -1,0 +1,26 @@
+[gd_resource type="Resource" script_class="Item" load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://data/Item.gd" id="1"]
+[ext_resource type="Script" path="res://data/effects/TagBonusEffect.gd" id="2"]
+[ext_resource type="Texture2D" path="res://assets/items/head_lamp.png" id="3"]
+
+[sub_resource type="Resource" id="effect_main"]
+script = ExtResource("2")
+hook = 1
+tag_filter = &""
+duration_seconds = 6
+bonus_tag = &"precision"
+bonus_damage_percent = 22
+
+[resource]
+script = ExtResource("1")
+id = &"head_lamp"
+display_name = "Späher-Lampe"
+description = "Beleuchtet [scout]- und [precision]-Items für extra Schaden."
+flavor_text = "Im Licht der Lampe trifft jeder Schuss."
+rarity = 2
+tags = Array[StringName]([&"scout", &"precision", &"modifier"])
+floor_affinity = Array[StringName]([&"pinnacle"])
+cooldown_seconds = 3
+effects = Array[ExtResource("2")]([SubResource("effect_main")])
+icon = ExtResource("3")

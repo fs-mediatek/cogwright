@@ -1,0 +1,30 @@
+[gd_resource type="Resource" script_class="Item" load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://data/Item.gd" id="1"]
+[ext_resource type="Script" path="res://data/effects/DealDamageEffect.gd" id="2"]
+[ext_resource type="Texture2D" path="res://assets/items/relief_valve.png" id="3"]
+
+[sub_resource type="Resource" id="effect_self"]
+script = ExtResource("2")
+hook = 1
+tag_filter = &""
+amount = 6
+
+[sub_resource type="Resource" id="effect_reactive"]
+script = ExtResource("2")
+hook = 2
+tag_filter = &""
+amount = 9
+
+[resource]
+script = ExtResource("1")
+id = &"relief_valve"
+display_name = "Druckventil"
+description = "Bricht regelmäßig kleinen Überdruck ab und reagiert zusätzlich auf Nachbar-Trigger mit einem zweiten Burst."
+flavor_text = "Wenn der Druck zu groß wird, gibt das Ventil nach — und der Gegner gleich mit."
+rarity = 2
+tags = Array[StringName]([&"pressure", &"reactive"])
+floor_affinity = Array[StringName]([&"pinnacle"])
+cooldown_seconds = 5.0
+effects = Array[ExtResource("2")]([SubResource("effect_self"), SubResource("effect_reactive")])
+icon = ExtResource("3")

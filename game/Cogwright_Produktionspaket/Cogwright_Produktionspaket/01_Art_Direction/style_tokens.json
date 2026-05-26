@@ -1,0 +1,142 @@
+{
+  "project": "Cogwright",
+  "style_core": "steampunk workshop game asset, brass and copper machinery, warm patina, worn iron, dark amber rim lighting, hand-painted illustration, clean silhouette, readable at small size, functional industrial romantic mood",
+  "lighting": "warm dark amber rim lighting from upper right",
+  "material_keywords": [
+    "brass",
+    "copper",
+    "worn iron",
+    "cast steel",
+    "dark wood",
+    "steam",
+    "rivets",
+    "patina",
+    "oil shine"
+  ],
+  "avoid": [
+    "chrome sci-fi silver",
+    "neon cyan",
+    "neon magenta",
+    "sterile futurism",
+    "plastic",
+    "medieval fantasy",
+    "cartoon",
+    "grimdark",
+    "photorealistic render",
+    "text",
+    "logo",
+    "watermark",
+    "frame",
+    "border",
+    "flat icon",
+    "blurry silhouette",
+    "over-detailed noise"
+  ],
+  "colors": [
+    {
+      "name": "Background deep workshop brown",
+      "token": "bg_deep_brown",
+      "hex": "#15100C"
+    },
+    {
+      "name": "Dark wood",
+      "token": "bg_dark_wood",
+      "hex": "#1B140F"
+    },
+    {
+      "name": "Mid brown",
+      "token": "bg_mid_brown",
+      "hex": "#2A2118"
+    },
+    {
+      "name": "Light wood",
+      "token": "bg_light_wood",
+      "hex": "#42342A"
+    },
+    {
+      "name": "Bright gold",
+      "token": "brass_bright_gold",
+      "hex": "#F2C75A"
+    },
+    {
+      "name": "Brass",
+      "token": "brass",
+      "hex": "#D9A640"
+    },
+    {
+      "name": "Antique brass",
+      "token": "brass_antique",
+      "hex": "#A37E2C"
+    },
+    {
+      "name": "Dark bronze",
+      "token": "bronze_dark",
+      "hex": "#5E4818"
+    },
+    {
+      "name": "Fire tag",
+      "token": "tag_fire",
+      "hex": "#E55934"
+    },
+    {
+      "name": "Steam tag",
+      "token": "tag_steam",
+      "hex": "#A8C7E5"
+    },
+    {
+      "name": "Pressure tag",
+      "token": "tag_pressure",
+      "hex": "#F2A93B"
+    },
+    {
+      "name": "Mechanical tag",
+      "token": "tag_mechanical",
+      "hex": "#8C7B5C"
+    },
+    {
+      "name": "Blunt tag",
+      "token": "tag_blunt",
+      "hex": "#7A6A52"
+    },
+    {
+      "name": "Precision tag",
+      "token": "tag_precision",
+      "hex": "#5DB3D9"
+    },
+    {
+      "name": "Support tag",
+      "token": "tag_support",
+      "hex": "#7CC279"
+    },
+    {
+      "name": "Ranged tag",
+      "token": "tag_ranged",
+      "hex": "#C97BBF"
+    },
+    {
+      "name": "Heavy tag",
+      "token": "tag_heavy",
+      "hex": "#6B5A40"
+    },
+    {
+      "name": "Scout tag",
+      "token": "tag_scout",
+      "hex": "#6FA670"
+    },
+    {
+      "name": "Sync tag",
+      "token": "tag_sync",
+      "hex": "#D49845"
+    },
+    {
+      "name": "Modifier tag",
+      "token": "tag_modifier",
+      "hex": "#9B6BC2"
+    },
+    {
+      "name": "Reactive tag",
+      "token": "tag_reactive",
+      "hex": "#D4674A"
+    }
+  ]
+}

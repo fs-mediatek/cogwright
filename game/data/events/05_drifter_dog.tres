@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="EventConfig" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://data/EventConfig.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = &"drifter_dog"
+title = "Treibsand-Hund"
+description = "Eine kleine Mech-Konstruktion in Hundeform, halb verrostet. Sie hechelt — oder ihr Dampfventil pfeift. Sie schaut dich erwartungsvoll an."
+choice_labels = Array[String](["Reparieren (15 Gold)", "Streicheln (kein Effekt)", "Vorbei gehen"])
+choice_descriptions = Array[String]([
+	"Erhalte 40 HP zurück. Sie watschelt dankbar davon.",
+	"+5 Gold (sie wedelt mit ihrer Heck-Welle, eine Münze fällt heraus).",
+	"Sie schaut traurig. Du gehst weiter.",
+])
+choice_outcomes = Array[String](["heal_full_cost:15", "gold:5", "noop"])

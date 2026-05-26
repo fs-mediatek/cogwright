@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="EventConfig" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://data/EventConfig.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = &"pressure_cache"
+title = "Druck-Cache"
+description = "Eine versteckte Klappe im Boden, gesichert mit Druckventilen."
+choice_labels = Array[String](["Knacken (25 Gold Werkzeug)", "Sprengung versuchen", "Verschlossen lassen"])
+choice_descriptions = Array[String](["Erhalte Druckventil, falls genug Gold.", "Zufaellig: gut oder schlecht.", "Sicher."])
+choice_outcomes = Array[String](["item:relief_valve:-25", "random_item_or_damage:15", "noop"])

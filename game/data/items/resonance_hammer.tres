@@ -1,0 +1,24 @@
+[gd_resource type="Resource" script_class="Item" load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://data/Item.gd" id="1"]
+[ext_resource type="Script" path="res://data/effects/DealDamageEffect.gd" id="2"]
+[ext_resource type="Texture2D" path="res://assets/items/resonance_hammer.png" id="3"]
+
+[sub_resource type="Resource" id="effect_main"]
+script = ExtResource("2")
+hook = 1
+tag_filter = &""
+amount = 20
+
+[resource]
+script = ExtResource("1")
+id = &"resonance_hammer"
+display_name = "Resonanz-Hammer"
+description = "Schwerer Hammer, der mit dichten Vibrationen zuschlägt."
+flavor_text = "Drei Schläge — und der Boden vergisst nicht."
+rarity = 2
+tags = Array[StringName]([&"blunt", &"heavy", &"mechanical"])
+floor_affinity = Array[StringName]([&"foundation"])
+cooldown_seconds = 3.2
+effects = Array[ExtResource("2")]([SubResource("effect_main")])
+icon = ExtResource("3")

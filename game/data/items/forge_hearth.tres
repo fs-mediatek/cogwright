@@ -1,0 +1,26 @@
+[gd_resource type="Resource" script_class="Item" load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://data/Item.gd" id="1"]
+[ext_resource type="Script" path="res://data/effects/TagBonusEffect.gd" id="2"]
+[ext_resource type="Texture2D" path="res://assets/items/forge_hearth.png" id="3"]
+
+[sub_resource type="Resource" id="effect_tagbonus"]
+script = ExtResource("2")
+hook = 1
+tag_filter = &""
+bonus_tag = &"blunt"
+bonus_damage_percent = 20.0
+duration_seconds = 7.0
+
+[resource]
+script = ExtResource("1")
+id = &"forge_hearth"
+display_name = "Schmiede-Esse"
+description = "Glühende Kohlen verstärken alle [blunt]-Items um 20% Schaden für 7 Sekunden."
+flavor_text = "Wer kein eigenes Feuer hat, leiht sich eins."
+rarity = 1
+tags = Array[StringName]([&"fire", &"support", &"heavy"])
+floor_affinity = Array[StringName]([&"foundation"])
+cooldown_seconds = 4.5
+effects = Array[ExtResource("2")]([SubResource("effect_tagbonus")])
+icon = ExtResource("3")

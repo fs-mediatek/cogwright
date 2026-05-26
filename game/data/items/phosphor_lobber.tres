@@ -1,0 +1,32 @@
+[gd_resource type="Resource" script_class="Item" load_steps=6 format=3]
+
+[ext_resource type="Script" path="res://data/Item.gd" id="1"]
+[ext_resource type="Script" path="res://data/effects/DealDamageEffect.gd" id="2"]
+[ext_resource type="Script" path="res://data/effects/BurnEffect.gd" id="3"]
+[ext_resource type="Texture2D" path="res://assets/items/phosphor_lobber.png" id="4"]
+
+[sub_resource type="Resource" id="effect_damage"]
+script = ExtResource("2")
+hook = 1
+tag_filter = &""
+amount = 6
+
+[sub_resource type="Resource" id="effect_burn"]
+script = ExtResource("3")
+hook = 1
+tag_filter = &""
+damage_per_second = 3
+duration_seconds = 4.0
+
+[resource]
+script = ExtResource("1")
+id = &"phosphor_lobber"
+display_name = "Phosphor-Werfer"
+description = "Schaedlich UND nachhaltig: 6 Direktschaden + 3 Brand/Sek fuer 4s."
+flavor_text = "Eine Salve, die noch lange nachglueht."
+rarity = 2
+tags = Array[StringName]([&"fire", &"ranged"])
+floor_affinity = Array[StringName]([&"pinnacle"])
+cooldown_seconds = 4.5
+effects = Array[Resource]([SubResource("effect_damage"), SubResource("effect_burn")])
+icon = ExtResource("4")

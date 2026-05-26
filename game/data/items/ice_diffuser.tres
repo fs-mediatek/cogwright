@@ -1,0 +1,25 @@
+[gd_resource type="Resource" script_class="Item" load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://data/Item.gd" id="1"]
+[ext_resource type="Script" path="res://data/effects/SlowEffect.gd" id="2"]
+[ext_resource type="Texture2D" path="res://assets/items/ice_diffuser.png" id="3"]
+
+[sub_resource type="Resource" id="effect_slow"]
+script = ExtResource("2")
+hook = 1
+tag_filter = &""
+slow_percent = 30.0
+duration_seconds = 3.0
+
+[resource]
+script = ExtResource("1")
+id = &"ice_diffuser"
+display_name = "Eis-Diffusor"
+description = "Versprueht eisigen Nebel: Gegner-Cooldowns -30% Speed fuer 3s."
+flavor_text = "Stillen Krieg fuehrt man mit Frost."
+rarity = 2
+tags = Array[StringName]([&"steam", &"modifier", &"support"])
+floor_affinity = Array[StringName]([&"workshop"])
+cooldown_seconds = 5.0
+effects = Array[ExtResource("2")]([SubResource("effect_slow")])
+icon = ExtResource("3")

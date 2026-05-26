@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="EncounterConfig" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://data/EncounterConfig.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = &"outrider"
+display_name = "Späh-Reiter"
+description = "Schnelle Druckluft-Maschine. Trifft selten, dafür hart."
+base_hp = 115
+item_ids = Array[StringName]([&"pressure_hammer", &"pressure_gauge", &"spark_spitter"])
+slot_indices = Array[int]([0, 4, 6])

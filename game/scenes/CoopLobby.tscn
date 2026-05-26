@@ -1,0 +1,152 @@
+[gd_scene load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://scripts/view/CoopLobby.gd" id="1"]
+[ext_resource type="Texture2D" path="res://assets/icons/bg_rivets.svg" id="2"]
+[ext_resource type="Script" path="res://scripts/view/AtmosphericBackground.gd" id="3"]
+
+[node name="CoopLobby" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1")
+
+[node name="Background" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.082, 0.062, 0.047, 1)
+
+[node name="BackgroundPattern" type="TextureRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+texture_repeat = 2
+modulate = Color(1, 1, 1, 0.30)
+texture = ExtResource("2")
+stretch_mode = 1
+mouse_filter = 2
+
+[node name="Atmosphere" type="Control" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("3")
+cog_count = 5
+steam_puff_count = 14
+pipe_columns = 2
+rng_seed = 211
+
+[node name="Layout" type="VBoxContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 60.0
+offset_top = 30.0
+offset_right = -60.0
+offset_bottom = -30.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 16
+
+[node name="TitleLabel" type="Label" parent="Layout"]
+layout_mode = 2
+theme_type_variation = &"GameHeading"
+text = "Co-Op-Werkstatt"
+horizontal_alignment = 1
+
+[node name="SubtitleLabel" type="Label" parent="Layout"]
+layout_mode = 2
+text = "Zwei Maschinisten, ein Turm. LAN-Verbindung erforderlich."
+horizontal_alignment = 1
+theme_override_font_sizes/font_size = 13
+
+[node name="ConnectionPanel" type="PanelContainer" parent="Layout"]
+layout_mode = 2
+
+[node name="ConnectionVBox" type="VBoxContainer" parent="Layout/ConnectionPanel"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="StatusLabel" type="Label" parent="Layout/ConnectionPanel/ConnectionVBox"]
+layout_mode = 2
+text = "Nicht verbunden."
+theme_override_font_sizes/font_size = 14
+
+[node name="ButtonRow" type="HBoxContainer" parent="Layout/ConnectionPanel/ConnectionVBox"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="HostButton" type="Button" parent="Layout/ConnectionPanel/ConnectionVBox/ButtonRow"]
+custom_minimum_size = Vector2(180, 38)
+layout_mode = 2
+text = "Lobby hosten"
+
+[node name="JoinIpEdit" type="LineEdit" parent="Layout/ConnectionPanel/ConnectionVBox/ButtonRow"]
+custom_minimum_size = Vector2(200, 38)
+layout_mode = 2
+placeholder_text = "IP-Adresse des Hosts"
+
+[node name="JoinButton" type="Button" parent="Layout/ConnectionPanel/ConnectionVBox/ButtonRow"]
+custom_minimum_size = Vector2(140, 38)
+layout_mode = 2
+text = "Beitreten"
+
+[node name="LeaveButton" type="Button" parent="Layout/ConnectionPanel/ConnectionVBox/ButtonRow"]
+custom_minimum_size = Vector2(140, 38)
+layout_mode = 2
+text = "Verbindung trennen"
+disabled = true
+
+[node name="LobbyPanel" type="PanelContainer" parent="Layout"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="LobbyVBox" type="VBoxContainer" parent="Layout/LobbyPanel"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="LobbyHeader" type="Label" parent="Layout/LobbyPanel/LobbyVBox"]
+layout_mode = 2
+text = "Spieler & Charakter-Auswahl"
+theme_override_font_sizes/font_size = 16
+
+[node name="PlayersContainer" type="VBoxContainer" parent="Layout/LobbyPanel/LobbyVBox"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/separation = 8
+
+[node name="Footer" type="HBoxContainer" parent="Layout"]
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="BackButton" type="Button" parent="Layout/Footer"]
+custom_minimum_size = Vector2(160, 40)
+layout_mode = 2
+text = "Zurück"
+
+[node name="ReadyButton" type="Button" parent="Layout/Footer"]
+custom_minimum_size = Vector2(160, 40)
+layout_mode = 2
+text = "Ich bin bereit"
+disabled = true
+
+[node name="StartButton" type="Button" parent="Layout/Footer"]
+custom_minimum_size = Vector2(200, 40)
+layout_mode = 2
+theme_type_variation = &"Accent"
+text = "Run starten"
+disabled = true

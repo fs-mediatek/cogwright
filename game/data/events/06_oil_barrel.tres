@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="EventConfig" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://data/EventConfig.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = &"oil_barrel"
+title = "Verrostetes Oelfass"
+description = "Ein altes Fass voller alter Schmieroel-Reste steht am Wegrand. Riskant, aber moeglicherweise lohnenswert."
+choice_labels = Array[String](["Trinken (riskant)", "Mitnehmen (10 Gold dafuer ausgeben)", "Stehenlassen"])
+choice_descriptions = Array[String](["Zufaellig: +25 HP oder -15 HP.", "Schmieroel-Kanister erhalten, falls genug Gold.", "Sicher."])
+choice_outcomes = Array[String](["damage_gold:15:0", "item:oil_canister:-10", "noop"])

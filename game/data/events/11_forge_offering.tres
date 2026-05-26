@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="EventConfig" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://data/EventConfig.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = &"forge_offering"
+title = "Stille Schmiede"
+description = "Eine alte Schmiede ohne Esse, aber mit einer Opfergabe-Schale. Die Geister der Werkstatt verlangen Tribut."
+choice_labels = Array[String](["Gold opfern (-30 Gold)", "Inventar opfern", "Nichts geben"])
+choice_descriptions = Array[String](["+50 HP wenn moeglich.", "Verliere Item, +60 Gold + 40 HP.", "Sicher."])
+choice_outcomes = Array[String](["damage_gold:-50:-30", "trade_inventory_for_gold_hp:60:40", "noop"])

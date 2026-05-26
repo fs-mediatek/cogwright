@@ -1,0 +1,24 @@
+[gd_resource type="Resource" script_class="Item" load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://data/Item.gd" id="1"]
+[ext_resource type="Script" path="res://data/effects/HealSelfEffect.gd" id="2"]
+[ext_resource type="Texture2D" path="res://assets/items/steam_whistle.png" id="3"]
+
+[sub_resource type="Resource" id="effect_heal"]
+script = ExtResource("2")
+hook = 1
+tag_filter = &""
+amount = 12
+
+[resource]
+script = ExtResource("1")
+id = &"steam_whistle"
+display_name = "Dampfpfeife"
+description = "Ein hoher Pfiff, der dem Turm Lebenskraft einhaucht."
+flavor_text = "Klingt wie ein Sieg."
+rarity = 1
+tags = Array[StringName]([&"steam", &"support"])
+floor_affinity = Array[StringName]([&"workshop"])
+cooldown_seconds = 4.5
+effects = Array[ExtResource("2")]([SubResource("effect_heal")])
+icon = ExtResource("3")

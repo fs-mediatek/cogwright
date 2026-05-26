@@ -1,0 +1,25 @@
+[gd_resource type="Resource" script_class="Item" load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://data/Item.gd" id="1"]
+[ext_resource type="Script" path="res://data/effects/BoostNeighborEffect.gd" id="2"]
+[ext_resource type="Texture2D" path="res://assets/items/gear_sync.png" id="3"]
+
+[sub_resource type="Resource" id="effect_boost"]
+script = ExtResource("2")
+hook = 1
+tag_filter = &""
+cooldown_reduction_percent = 30.0
+duration_seconds = 4.0
+
+[resource]
+script = ExtResource("1")
+id = &"gear_sync"
+display_name = "Zahnrad-Synchronisator"
+description = "Beschleunigt alle Nachbar-Items derselben Etage."
+flavor_text = "Wenn die Räder einander finden, wird aus Lärm Musik."
+rarity = 1
+tags = Array[StringName]([&"mechanical", &"sync", &"modifier"])
+floor_affinity = Array[StringName]([&"workshop"])
+cooldown_seconds = 4.0
+effects = Array[ExtResource("2")]([SubResource("effect_boost")])
+icon = ExtResource("3")

@@ -1,0 +1,97 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/view/HealNodeView.gd" id="1"]
+[ext_resource type="Script" path="res://scripts/view/AtmosphericBackground.gd" id="2"]
+
+[node name="HealNodeView" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1")
+
+[node name="Background" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.062, 0.082, 0.062, 1)
+
+[node name="Atmosphere" type="Control" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("2")
+cog_count = 0
+steam_puff_count = 0
+pipe_columns = 0
+steam_color = Color(0.6, 1.0, 0.7, 0.10)
+rng_seed = 333
+
+[node name="Center" type="CenterContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="VBox" type="VBoxContainer" parent="Center"]
+custom_minimum_size = Vector2(540, 0)
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="TitleLabel" type="Label" parent="Center/VBox"]
+layout_mode = 2
+theme_type_variation = &"GameHeading"
+text = "Reparatur-Halt"
+horizontal_alignment = 1
+
+[node name="FlavorLabel" type="Label" parent="Center/VBox"]
+layout_mode = 2
+text = "Eine verlassene Wartungs-Station. Pumpen quirlen leise, Öl tropft. Du nutzt die Pause."
+horizontal_alignment = 1
+autowrap_mode = 3
+theme_override_font_sizes/font_size = 13
+theme_override_colors/font_color = Color(0.75, 0.83, 0.75, 1)
+
+[node name="Spacer1" type="Control" parent="Center/VBox"]
+custom_minimum_size = Vector2(0, 16)
+layout_mode = 2
+
+[node name="HpBeforeLabel" type="Label" parent="Center/VBox"]
+layout_mode = 2
+text = "Vorher: ..."
+horizontal_alignment = 1
+theme_override_font_sizes/font_size = 16
+
+[node name="HealValueLabel" type="Label" parent="Center/VBox"]
+layout_mode = 2
+text = "+0 HP"
+horizontal_alignment = 1
+theme_override_font_sizes/font_size = 42
+theme_override_colors/font_color = Color(0.55, 0.95, 0.60, 1)
+
+[node name="HpAfterLabel" type="Label" parent="Center/VBox"]
+layout_mode = 2
+text = "Jetzt: ..."
+horizontal_alignment = 1
+theme_override_font_sizes/font_size = 16
+
+[node name="Spacer2" type="Control" parent="Center/VBox"]
+custom_minimum_size = Vector2(0, 16)
+layout_mode = 2
+
+[node name="ContinueButton" type="Button" parent="Center/VBox"]
+custom_minimum_size = Vector2(0, 44)
+layout_mode = 2
+theme_type_variation = &"Accent"
+text = "Weiter zur Karte"

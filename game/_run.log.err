@@ -1,0 +1,2 @@
+ERROR: Can't find movie writer for file type, aborting: c:\KI-Projekte\Godot\game\_run.log
+   at: setup2 (main/main.cpp:3699)

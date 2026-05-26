@@ -1,0 +1,26 @@
+[gd_resource type="Resource" script_class="Item" load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://data/Item.gd" id="1"]
+[ext_resource type="Script" path="res://data/effects/TagBonusEffect.gd" id="2"]
+[ext_resource type="Texture2D" path="res://assets/items/oil_canister.png" id="3"]
+
+[sub_resource type="Resource" id="effect_main"]
+script = ExtResource("2")
+hook = 1
+tag_filter = &""
+duration_seconds = 5
+bonus_tag = &"mechanical"
+bonus_damage_percent = 18
+
+[resource]
+script = ExtResource("1")
+id = &"oil_canister"
+display_name = "Schmieröl-Kanister"
+description = "Verstärkt periodisch alle [mechanical]-Items mit Glanz und Geschwindigkeit."
+flavor_text = "Ein Tropfen weniger Reibung, ein Schlag mehr Kraft."
+rarity = 1
+tags = Array[StringName]([&"mechanical", &"modifier", &"support"])
+floor_affinity = Array[StringName]([&"workshop"])
+cooldown_seconds = 3.5
+effects = Array[ExtResource("2")]([SubResource("effect_main")])
+icon = ExtResource("3")

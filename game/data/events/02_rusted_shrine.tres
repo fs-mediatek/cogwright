@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="EventConfig" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://data/EventConfig.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = &"rusted_shrine"
+title = "Verrostete Schrein-Maschine"
+description = "Eine alte Andachts-Apparatur thront im Aether. Zwei Hebel ragen aus dem Rumpf. Auf einem steht „Druck"; auf dem anderen „Stille". Ein Schild verspricht beiden eine Gabe."
+choice_labels = Array[String](["Druck-Hebel ziehen", "Stille-Hebel ziehen", "Vorbei gehen"])
+choice_descriptions = Array[String]([
+	"Verlust 25 HP, dafür +40 Gold.",
+	"Voll heilen (volles Max-HP), aber -20 Gold.",
+	"Sicher weiter.",
+])
+choice_outcomes = Array[String](["damage_gold:25:40", "heal_full_cost:20", "noop"])

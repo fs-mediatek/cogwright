@@ -1,0 +1,26 @@
+[gd_resource type="Resource" script_class="Item" load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://data/Item.gd" id="1"]
+[ext_resource type="Script" path="res://data/effects/BoostFloorEffect.gd" id="2"]
+[ext_resource type="Texture2D" path="res://assets/items/brass_horn.png" id="3"]
+
+[sub_resource type="Resource" id="effect_floor"]
+script = ExtResource("2")
+hook = 1
+tag_filter = &""
+floor_offset = -1
+cooldown_reduction_percent = 30.0
+duration_seconds = 5.0
+
+[resource]
+script = ExtResource("1")
+id = &"brass_horn"
+display_name = "Messing-Trompete"
+description = "Schallt durch den Turm und befeuert die Etage darunter."
+flavor_text = "Die Werkstatt hoert ihren Ruf von weit her."
+rarity = 1
+tags = Array[StringName]([&"sync", &"support"])
+floor_affinity = Array[StringName]([&"pinnacle"])
+cooldown_seconds = 5.0
+effects = Array[ExtResource("2")]([SubResource("effect_floor")])
+icon = ExtResource("3")

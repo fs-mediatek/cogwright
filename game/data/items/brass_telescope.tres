@@ -1,0 +1,26 @@
+[gd_resource type="Resource" script_class="Item" load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://data/Item.gd" id="1"]
+[ext_resource type="Script" path="res://data/effects/TagBonusEffect.gd" id="2"]
+[ext_resource type="Texture2D" path="res://assets/items/brass_telescope.png" id="3"]
+
+[sub_resource type="Resource" id="effect_tag"]
+script = ExtResource("2")
+hook = 1
+tag_filter = &""
+bonus_tag = &"precision"
+bonus_damage_percent = 25.0
+duration_seconds = 5.0
+
+[resource]
+script = ExtResource("1")
+id = &"brass_telescope"
+display_name = "Messing-Teleskop"
+description = "Hebt [precision]-Items aufs naechste Level."
+flavor_text = "Was sichtbar ist, ist auch treffbar."
+rarity = 1
+tags = Array[StringName]([&"scout", &"precision"])
+floor_affinity = Array[StringName]([&"pinnacle"])
+cooldown_seconds = 3.2
+effects = Array[ExtResource("2")]([SubResource("effect_tag")])
+icon = ExtResource("3")

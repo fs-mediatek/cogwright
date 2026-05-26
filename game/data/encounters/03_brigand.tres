@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="EncounterConfig" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://data/EncounterConfig.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = &"brigand"
+display_name = "Luftpiraten-Pinasse"
+description = "Schwer gepanzert, harte Pendel-Schläge, kein Bedauern."
+base_hp = 145
+item_ids = Array[StringName]([&"forge_hearth", &"pressure_hammer", &"pendulum_strike", &"spark_spitter"])
+slot_indices = Array[int]([0, 1, 3, 6])

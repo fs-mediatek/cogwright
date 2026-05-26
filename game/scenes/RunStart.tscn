@@ -1,0 +1,155 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/view/RunStart.gd" id="1"]
+[ext_resource type="Script" path="res://scripts/view/AtmosphericBackground.gd" id="2"]
+
+[node name="RunStart" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1")
+
+[node name="Background" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.082, 0.062, 0.047, 1)
+
+[node name="Atmosphere" type="Control" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("2")
+cog_count = 0
+steam_puff_count = 0
+pipe_columns = 0
+rng_seed = 27
+
+[node name="Layout" type="VBoxContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 32.0
+offset_top = 24.0
+offset_right = -32.0
+offset_bottom = -24.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 24
+
+[node name="TitleLabel" type="Label" parent="Layout"]
+layout_mode = 2
+theme_type_variation = &"GameHeading"
+theme_override_font_sizes/font_size = 32
+text = "Wähle dein Starter-Set"
+horizontal_alignment = 1
+
+[node name="LengthRow" type="HBoxContainer" parent="Layout"]
+layout_mode = 2
+theme_override_constants/separation = 12
+alignment = 1
+
+[node name="LengthLabel" type="Label" parent="Layout/LengthRow"]
+layout_mode = 2
+text = "Run-Länge:"
+theme_override_font_sizes/font_size = 14
+theme_override_colors/font_color = Color(0.85, 0.78, 0.55, 1)
+size_flags_vertical = 4
+
+[node name="LengthShortBtn" type="Button" parent="Layout/LengthRow"]
+custom_minimum_size = Vector2(180, 36)
+layout_mode = 2
+toggle_mode = true
+text = "Schnell (~10 min)"
+theme_override_font_sizes/font_size = 12
+
+[node name="LengthNormalBtn" type="Button" parent="Layout/LengthRow"]
+custom_minimum_size = Vector2(180, 36)
+layout_mode = 2
+toggle_mode = true
+text = "Normal (~25 min)"
+theme_override_font_sizes/font_size = 12
+
+[node name="LengthLongBtn" type="Button" parent="Layout/LengthRow"]
+custom_minimum_size = Vector2(180, 36)
+layout_mode = 2
+toggle_mode = true
+text = "Lang (~50 min)"
+theme_override_font_sizes/font_size = 12
+
+[node name="HeatRow" type="HBoxContainer" parent="Layout"]
+layout_mode = 2
+theme_override_constants/separation = 8
+alignment = 1
+
+[node name="HeatLabel" type="Label" parent="Layout/HeatRow"]
+layout_mode = 2
+text = "Schwierigkeit:"
+theme_override_font_sizes/font_size = 14
+theme_override_colors/font_color = Color(0.95, 0.85, 0.55, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 0.85)
+theme_override_constants/outline_size = 4
+size_flags_vertical = 4
+
+[node name="HeatButtons" type="HBoxContainer" parent="Layout/HeatRow"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="HeatDetailLabel" type="Label" parent="Layout"]
+layout_mode = 2
+text = "Standard-Schwierigkeit (Heat 0)"
+horizontal_alignment = 1
+theme_override_font_sizes/font_size = 13
+theme_override_colors/font_color = Color(0.98, 0.92, 0.78, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 0.85)
+theme_override_constants/outline_size = 4
+
+[node name="PerkRow" type="HBoxContainer" parent="Layout"]
+visible = false
+layout_mode = 2
+theme_override_constants/separation = 12
+alignment = 1
+
+[node name="PerkLabel" type="Label" parent="Layout/PerkRow"]
+layout_mode = 2
+text = "Perks:"
+theme_override_font_sizes/font_size = 14
+theme_override_colors/font_color = Color(0.95, 0.85, 0.55, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 0.85)
+theme_override_constants/outline_size = 4
+size_flags_vertical = 4
+
+[node name="PerkSlotsContainer" type="HBoxContainer" parent="Layout/PerkRow"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="PerkManageBtn" type="Button" parent="Layout/PerkRow"]
+custom_minimum_size = Vector2(140, 32)
+layout_mode = 2
+text = "Verwalten"
+theme_override_font_sizes/font_size = 12
+
+[node name="SetsContainer" type="HBoxContainer" parent="Layout"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/separation = 20
+alignment = 1
+
+[node name="Footer" type="HBoxContainer" parent="Layout"]
+layout_mode = 2
+alignment = 0
+
+[node name="BackButton" type="Button" parent="Layout/Footer"]
+layout_mode = 2
+text = "← Zurück"

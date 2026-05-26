@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="EncounterConfig" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://data/EncounterConfig.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = &"oelbaron_krasnik"
+display_name = "Oelbaron Krasnik"
+description = "Uebergewichtig in oeliger Robe, mehrere mechanische Tentakel."
+base_hp = 275
+item_ids = Array[StringName]([&"oil_canister", &"iron_claw", &"cargo_lift", &"pressure_cannon"])
+slot_indices = Array[int]([3, 0, 1, 7])

@@ -1,0 +1,26 @@
+[gd_resource type="Resource" script_class="Item" load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://data/Item.gd" id="1"]
+[ext_resource type="Script" path="res://data/effects/TagBonusEffect.gd" id="2"]
+[ext_resource type="Texture2D" path="res://assets/items/resonance_crystal.png" id="3"]
+
+[sub_resource type="Resource" id="effect_mech"]
+script = ExtResource("2")
+hook = 1
+tag_filter = &""
+bonus_tag = &"mechanical"
+bonus_damage_percent = 15.0
+duration_seconds = 5.0
+
+[resource]
+script = ExtResource("1")
+id = &"resonance_crystal"
+display_name = "Resonanzkristall"
+description = "Verstärkt periodisch alle [mechanical]-Items im Turm um 15% Schaden für 5 Sekunden."
+flavor_text = "Pulsiert in einer Frequenz, die Metalle erinnern und Pendel singen lässt."
+rarity = 2
+tags = Array[StringName]([&"mechanical", &"modifier"])
+floor_affinity = Array[StringName]([&"workshop"])
+cooldown_seconds = 3.0
+effects = Array[ExtResource("2")]([SubResource("effect_mech")])
+icon = ExtResource("3")

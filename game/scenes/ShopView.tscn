@@ -1,0 +1,139 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/view/ShopView.gd" id="1"]
+[ext_resource type="Script" path="res://scripts/view/AtmosphericBackground.gd" id="2"]
+
+[node name="ShopView" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1")
+
+[node name="Background" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.082, 0.062, 0.047, 1)
+
+[node name="Atmosphere" type="Control" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("2")
+cog_count = 6
+steam_puff_count = 16
+pipe_columns = 2
+rng_seed = 73
+
+[node name="Layout" type="VBoxContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 24.0
+offset_top = 18.0
+offset_right = -24.0
+offset_bottom = -18.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 16
+
+[node name="Header" type="HBoxContainer" parent="Layout"]
+layout_mode = 2
+theme_override_constants/separation = 24
+
+[node name="TitleLabel" type="Label" parent="Layout/Header"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_type_variation = &"GameHeading"
+text = "Wanderhändlerin"
+horizontal_alignment = 0
+
+[node name="GoldLabel" type="Label" parent="Layout/Header"]
+layout_mode = 2
+text = "Gold: 0"
+theme_override_font_sizes/font_size = 18
+theme_override_colors/font_color = Color(0.95, 0.78, 0.35, 1)
+
+[node name="HpLabel" type="Label" parent="Layout/Header"]
+layout_mode = 2
+text = "HP: 220 / 220"
+theme_override_font_sizes/font_size = 16
+
+[node name="InventoryPanel" type="PanelContainer" parent="Layout"]
+layout_mode = 2
+
+[node name="InventoryScroll" type="ScrollContainer" parent="Layout/InventoryPanel"]
+layout_mode = 2
+horizontal_scroll_mode = 2
+vertical_scroll_mode = 0
+custom_minimum_size = Vector2(0, 64)
+
+[node name="InventoryStrip" type="HBoxContainer" parent="Layout/InventoryPanel/InventoryScroll"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="StatusBar" type="HBoxContainer" parent="Layout"]
+layout_mode = 2
+theme_override_constants/separation = 24
+
+[node name="TowerStatusLabel" type="Label" parent="Layout/StatusBar"]
+layout_mode = 2
+text = "Slots: 0 / 9"
+theme_override_font_sizes/font_size = 13
+theme_override_colors/font_color = Color(0.75, 0.65, 0.45, 1)
+
+[node name="TagsContainer" type="HBoxContainer" parent="Layout/StatusBar"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 6
+
+[node name="WerkbankPanel" type="PanelContainer" parent="Layout"]
+layout_mode = 2
+visible = false
+
+[node name="WerkbankVBox" type="VBoxContainer" parent="Layout/WerkbankPanel"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="WerkbankTitle" type="Label" parent="Layout/WerkbankPanel/WerkbankVBox"]
+layout_mode = 2
+text = "✦ Werkbank — 3 gleiche Items zusammenfügen"
+theme_override_font_sizes/font_size = 14
+theme_override_colors/font_color = Color(0.95, 0.78, 0.35, 1)
+
+[node name="WerkbankRow" type="HBoxContainer" parent="Layout/WerkbankPanel/WerkbankVBox"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="ItemsContainer" type="HBoxContainer" parent="Layout"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/separation = 16
+alignment = 1
+
+[node name="Footer" type="HBoxContainer" parent="Layout"]
+layout_mode = 2
+theme_override_constants/separation = 16
+alignment = 1
+
+[node name="RerollButton" type="Button" parent="Layout/Footer"]
+custom_minimum_size = Vector2(180, 38)
+layout_mode = 2
+text = "Reroll (5 Gold)"
+
+[node name="ContinueButton" type="Button" parent="Layout/Footer"]
+custom_minimum_size = Vector2(180, 38)
+layout_mode = 2
+theme_type_variation = &"Accent"
+text = "Weiter zur Karte"

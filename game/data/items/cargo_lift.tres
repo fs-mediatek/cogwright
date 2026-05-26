@@ -1,0 +1,26 @@
+[gd_resource type="Resource" script_class="Item" load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://data/Item.gd" id="1"]
+[ext_resource type="Script" path="res://data/effects/BoostFloorEffect.gd" id="2"]
+[ext_resource type="Texture2D" path="res://assets/items/cargo_lift.png" id="3"]
+
+[sub_resource type="Resource" id="effect_boost"]
+script = ExtResource("2")
+hook = 1
+tag_filter = &""
+floor_offset = 1
+cooldown_reduction_percent = 35.0
+duration_seconds = 5.0
+
+[resource]
+script = ExtResource("1")
+id = &"cargo_lift"
+display_name = "Lasten-Aufzug"
+description = "Pumpt Druckluft eine Etage höher. Alle Items eine Etage darüber feuern +35% schneller für 5s."
+flavor_text = "Hinauf, hinab. Hinauf, hinab. Das Lied der Werkstatt."
+rarity = 2
+tags = Array[StringName]([&"mechanical", &"support", &"pressure"])
+floor_affinity = Array[StringName]([&"foundation"])
+cooldown_seconds = 6.0
+effects = Array[ExtResource("2")]([SubResource("effect_boost")])
+icon = ExtResource("3")

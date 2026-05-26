@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="EventConfig" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://data/EventConfig.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = &"singing_pipes"
+title = "Singende Pipelines"
+description = "In der Naehe rauschen Dampfleitungen mit seltsamer Melodie. Der Klang verspricht etwas."
+choice_labels = Array[String](["Naeher gehen (riskant)", "Notizen machen (15 Gold)", "Weiterziehen"])
+choice_descriptions = Array[String](["Zufaellig: Spaeher-Lampe oder -10 HP.", "Naechster Encounter: +20% Schaden 1x.", "Sicher."])
+choice_outcomes = Array[String](["random_item_or_damage:10", "gold:-15", "noop"])

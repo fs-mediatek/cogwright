@@ -1,0 +1,26 @@
+[gd_resource type="Resource" script_class="Item" load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://data/Item.gd" id="1"]
+[ext_resource type="Script" path="res://data/effects/TagBonusEffect.gd" id="2"]
+[ext_resource type="Texture2D" path="res://assets/items/alchemist_flask.png" id="3"]
+
+[sub_resource type="Resource" id="effect_tag"]
+script = ExtResource("2")
+hook = 2
+tag_filter = &""
+bonus_tag = &"mechanical"
+bonus_damage_percent = 15.0
+duration_seconds = 4.0
+
+[resource]
+script = ExtResource("1")
+id = &"alchemist_flask"
+display_name = "Alchimisten-Kolben"
+description = "Reagiert auf Nachbar-Trigger und buffed kurz alle [mechanical]-Items."
+flavor_text = "Die Reaktion ist farbenfroh und kurzlebig."
+rarity = 2
+tags = Array[StringName]([&"modifier", &"reactive", &"support"])
+floor_affinity = Array[StringName]([&"workshop"])
+cooldown_seconds = 99.0
+effects = Array[ExtResource("2")]([SubResource("effect_tag")])
+icon = ExtResource("3")

@@ -1,0 +1,16 @@
+[remap]
+
+importer="csv_translation"
+type="Translation"
+uid="uid://dricw7i4bjq4q"
+
+[deps]
+
+source_file="res://Cogwright_Asset_Manifest_consolidated.csv"
+
+[params]
+
+compress=1
+delimiter=0
+unescape_keys=false
+unescape_translations=true

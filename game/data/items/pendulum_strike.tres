@@ -1,0 +1,24 @@
+[gd_resource type="Resource" script_class="Item" load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://data/Item.gd" id="1"]
+[ext_resource type="Script" path="res://data/effects/DealDamageEffect.gd" id="2"]
+[ext_resource type="Texture2D" path="res://assets/items/pendulum_strike.png" id="3"]
+
+[sub_resource type="Resource" id="effect_damage"]
+script = ExtResource("2")
+hook = 1
+tag_filter = &""
+amount = 22
+
+[resource]
+script = ExtResource("1")
+id = &"pendulum_strike"
+display_name = "Pendel-Schlag"
+description = "Schweres Pendel, langsam aber wuchtig."
+flavor_text = "Zwölf Kilo. Zwölf Sekunden. Zwölf Schritte zurück, wenn es kommt."
+rarity = 1
+tags = Array[StringName]([&"blunt", &"heavy", &"mechanical"])
+floor_affinity = Array[StringName]([&"workshop"])
+cooldown_seconds = 4.0
+effects = Array[ExtResource("2")]([SubResource("effect_damage")])
+icon = ExtResource("3")

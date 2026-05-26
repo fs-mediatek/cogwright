@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="EncounterConfig" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://data/EncounterConfig.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = &"funken_tyrann"
+display_name = "Funken-Tyrann"
+description = "Riesen-Roboter aus zusammengeschweissten Items. Brennende Augenlampen."
+base_hp = 290
+item_ids = Array[StringName]([&"flame_lance", &"spark_magazine", &"forge_hearth", &"piston_engine"])
+slot_indices = Array[int]([7, 8, 0, 3])

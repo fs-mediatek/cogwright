@@ -1,0 +1,32 @@
+[gd_resource type="Resource" script_class="Item" load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://data/Item.gd" id="1"]
+[ext_resource type="Script" path="res://data/effects/DealDamageEffect.gd" id="2"]
+[ext_resource type="Script" path="res://data/effects/SlowEffect.gd" id="3"]
+[ext_resource type="Texture2D" path="res://assets/items/grappling_hook.png" id="4"]
+
+[sub_resource type="Resource" id="effect_damage"]
+script = ExtResource("2")
+hook = 1
+tag_filter = &""
+amount = 12
+
+[sub_resource type="Resource" id="effect_slow"]
+script = ExtResource("3")
+hook = 1
+tag_filter = &""
+slow_percent = 25.0
+duration_seconds = 2.5
+
+[resource]
+script = ExtResource("1")
+id = &"grappling_hook"
+display_name = "Wurfanker"
+description = "12 Schaden + Slow –25% für 2.5s. Die Krallen halten, bis die Mechanik überdreht."
+flavor_text = "Verhakt — und der Gegner muss langsamer kämpfen, ob er will oder nicht."
+rarity = 2
+tags = Array[StringName]([&"sharp", &"ranged", &"mechanical"])
+floor_affinity = Array[StringName]([&"foundation"])
+cooldown_seconds = 4.5
+effects = Array[ExtResource("2")]([SubResource("effect_damage"), SubResource("effect_slow")])
+icon = ExtResource("4")

@@ -1,0 +1,16 @@
+[remap]
+
+importer="csv_translation"
+type="Translation"
+uid="uid://hx1x1rkbt0cw"
+
+[deps]
+
+source_file="res://Cogwright_Produktionspaket/Cogwright_Produktionspaket/02_Asset_Manifest/Cogwright_Asset_Manifest.csv"
+
+[params]
+
+compress=1
+delimiter=0
+unescape_keys=false
+unescape_translations=true

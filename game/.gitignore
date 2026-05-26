@@ -1,0 +1,27 @@
+.godot/
+.import/
+export.cfg
+export_presets.cfg
+
+# Imported assets
+*.translation
+
+# Mono / .NET (falls später C# dazukommt)
+.mono/
+data_*/
+mono_crash.*.json
+
+# OS / Editor
+.DS_Store
+Thumbs.db
+*.swp
+*~
+.vscode/
+.idea/
+
+# Build output
+build/
+dist/
+*.pck
+*.exe
+*.zip

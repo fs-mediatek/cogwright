@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="EncounterConfig" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://data/EncounterConfig.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = &"schwarze_lokomotive"
+display_name = "Schwarze Lokomotive Kraschnit"
+description = "Wandernde Lokomotive mit Geschuetzwaggons. Geschuetz und Maschinerie verschmolzen — die Rauchsaeule sieht man vor den Kanonen."
+base_hp = 380
+item_ids = Array[StringName]([&"triple_cannon", &"grenade_launcher", &"pressure_cannon", &"ammo_belt", &"oil_canister", &"stabilizer_brace", &"iron_claw", &"shock_absorber", &"grappling_hook"])
+slot_indices = Array[int]([6, 7, 8, 3, 4, 5, 0, 1, 2])

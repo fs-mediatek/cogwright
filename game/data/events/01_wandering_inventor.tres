@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="EventConfig" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://data/EventConfig.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = &"wandering_inventor"
+title = "Wandernde Erfinderin"
+description = "Eine alte Erfinderin in einer abgewetzten Brokatweste sitzt am Wegrand. Sie zeigt dir einen verbeulten Druckmesser. „Ich kann ihn dir richten — aber Werkzeug kostet, und ich brauche Material."
+choice_labels = Array[String](["Druckmesser kaufen (20 Gold)", "Reparatur-Drohne als Spende geben", "Höflich ablehnen"])
+choice_descriptions = Array[String]([
+	"Erhalte Druckmesser, wenn du genug Gold hast.",
+	"Verlierst zufälliges Inventar-Item, erhältst 35 Gold + 25 HP.",
+	"Kein Risiko, keine Belohnung.",
+])
+choice_outcomes = Array[String](["item:pressure_gauge:-20", "trade_inventory_for_gold_hp:35:25", "noop"])

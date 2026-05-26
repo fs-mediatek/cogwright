@@ -1,0 +1,24 @@
+[gd_resource type="Resource" script_class="Item" load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://data/Item.gd" id="1"]
+[ext_resource type="Script" path="res://data/effects/DealDamageEffect.gd" id="2"]
+[ext_resource type="Texture2D" path="res://assets/items/pressure_cannon.png" id="3"]
+
+[sub_resource type="Resource" id="effect_damage"]
+script = ExtResource("2")
+hook = 1
+tag_filter = &""
+amount = 24
+
+[resource]
+script = ExtResource("1")
+id = &"pressure_cannon"
+display_name = "Druckkanone"
+description = "Schwerer Druckluft-Schlag. Langer Cooldown, dafür Riesen-Damage."
+flavor_text = "Das Mündungsfeuer riecht nach Brennholz und Eisen."
+rarity = 2
+tags = Array[StringName]([&"pressure", &"ranged", &"heavy"])
+floor_affinity = Array[StringName]([&"pinnacle"])
+cooldown_seconds = 5.0
+effects = Array[ExtResource("2")]([SubResource("effect_damage")])
+icon = ExtResource("3")

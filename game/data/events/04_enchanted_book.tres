@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="EventConfig" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://data/EventConfig.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = &"enchanted_book"
+title = "Aether-Folianten"
+description = "Ein verstaubtes Buch liegt offen auf einem Schrein. Die Seiten flackern, als würden sie sich an Vergangenes erinnern. Du spürst eine eigenartige Versuchung."
+choice_labels = Array[String](["Lesen — Glück versuchen", "Buch verbrennen", "Vorbei gehen"])
+choice_descriptions = Array[String]([
+	"50/50: Erhalte gutes Item ODER verliere 25 HP.",
+	"+25 Gold (Buchbinder zahlt für Asche).",
+	"Sicher weiter.",
+])
+choice_outcomes = Array[String](["random_item_or_damage:25", "gold:25", "noop"])

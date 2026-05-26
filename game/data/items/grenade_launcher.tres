@@ -1,0 +1,32 @@
+[gd_resource type="Resource" script_class="Item" load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://data/Item.gd" id="1"]
+[ext_resource type="Script" path="res://data/effects/DealDamageEffect.gd" id="2"]
+[ext_resource type="Script" path="res://data/effects/BurnEffect.gd" id="3"]
+[ext_resource type="Texture2D" path="res://assets/items/grenade_launcher.png" id="4"]
+
+[sub_resource type="Resource" id="effect_damage"]
+script = ExtResource("2")
+hook = 1
+tag_filter = &""
+amount = 18
+
+[sub_resource type="Resource" id="effect_burn"]
+script = ExtResource("3")
+hook = 1
+tag_filter = &""
+damage_per_second = 2
+duration_seconds = 3.0
+
+[resource]
+script = ExtResource("1")
+id = &"grenade_launcher"
+display_name = "Granat-Werfer"
+description = "18 Schaden + Brand 2/s für 3s. Der Splitter brennt nach, das Loch im Panzer bleibt."
+flavor_text = "Ein Knall, ein Glühen, ein Schweigen. So endet der Tag."
+rarity = 2
+tags = Array[StringName]([&"heavy", &"ranged", &"sharp"])
+floor_affinity = Array[StringName]([&"pinnacle"])
+cooldown_seconds = 5.5
+effects = Array[ExtResource("2")]([SubResource("effect_damage"), SubResource("effect_burn")])
+icon = ExtResource("4")

@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="EventConfig" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://data/EventConfig.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = &"mysterious_lever"
+title = "Mysterioser Hebel"
+description = "Ein einzelner Hebel an einer rostigen Wand. Was er bewirkt, weiss niemand mehr."
+choice_labels = Array[String](["Ziehen!", "Genauer untersuchen (15 Gold)", "Nicht anruehren"])
+choice_descriptions = Array[String](["Voellig zufaellig: gut oder boese.", "Vielleicht Item, vielleicht nichts.", "Sicher."])
+choice_outcomes = Array[String](["random_item_or_damage:25", "item:vacuum_tube:-15", "noop"])

@@ -1,0 +1,25 @@
+[gd_resource type="Resource" script_class="Item" load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://data/Item.gd" id="1"]
+[ext_resource type="Script" path="res://data/effects/ShieldEffect.gd" id="2"]
+[ext_resource type="Texture2D" path="res://assets/items/steel_aegis.png" id="3"]
+
+[sub_resource type="Resource" id="effect_shield"]
+script = ExtResource("2")
+hook = 1
+tag_filter = &""
+shield_amount = 30
+duration_seconds = 6.0
+
+[resource]
+script = ExtResource("1")
+id = &"steel_aegis"
+display_name = "Stahl-Aegis"
+description = "Errichtet einen Schild: absorbiert 30 Damage fuer 6s. Stapelt."
+flavor_text = "Erste Verteidigung: Stahl. Zweite Verteidigung: noch mehr Stahl."
+rarity = 1
+tags = Array[StringName]([&"heavy", &"support"])
+floor_affinity = Array[StringName]([&"foundation"])
+cooldown_seconds = 5.5
+effects = Array[ExtResource("2")]([SubResource("effect_shield")])
+icon = ExtResource("3")

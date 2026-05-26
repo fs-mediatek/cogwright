@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="EncounterConfig" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://data/EncounterConfig.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = &"uhrwerk_hexe"
+display_name = "Uhrwerk-Hexe"
+description = "Verzerrte Gestalt aus Zahnraedern und Stoff, Zifferblatt statt Gesicht. Manipuliert Zeit selbst."
+base_hp = 265
+item_ids = Array[StringName]([&"chronometer", &"gear_sync", &"clockwork_bird", &"spinneret"])
+slot_indices = Array[int]([4, 3, 7, 1])

@@ -1,0 +1,152 @@
+[gd_scene load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://scripts/view/MainMenu.gd" id="1"]
+[ext_resource type="Texture2D" path="res://assets/icons/bg_rivets.svg" id="2"]
+[ext_resource type="Script" path="res://scripts/view/AtmosphericBackground.gd" id="3"]
+
+[node name="MainMenu" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1")
+
+[node name="Background" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.082, 0.062, 0.047, 1)
+
+[node name="BackgroundPattern" type="TextureRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+texture_repeat = 2
+modulate = Color(1, 1, 1, 0.40)
+texture = ExtResource("2")
+stretch_mode = 1
+mouse_filter = 2
+
+[node name="Atmosphere" type="Control" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("3")
+cog_count = 0
+steam_puff_count = 0
+pipe_columns = 0
+cog_color = Color(0.30, 0.22, 0.14, 0.08)
+steam_color = Color(1.0, 0.95, 0.85, 0.03)
+
+[node name="Center" type="CenterContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="VBox" type="VBoxContainer" parent="Center"]
+layout_mode = 2
+theme_override_constants/separation = 24
+alignment = 1
+
+[node name="Title" type="Label" parent="Center/VBox"]
+layout_mode = 2
+theme_type_variation = &"GameTitle"
+text = "COGWRIGHT"
+horizontal_alignment = 1
+
+[node name="Subtitle" type="Label" parent="Center/VBox"]
+layout_mode = 2
+theme_type_variation = &"GameSubtitle"
+text = "Ein Uhrwerk, das du synchronisierst."
+horizontal_alignment = 1
+
+[node name="Spacer" type="Control" parent="Center/VBox"]
+custom_minimum_size = Vector2(0, 40)
+layout_mode = 2
+
+[node name="ContinueButton" type="Button" parent="Center/VBox"]
+custom_minimum_size = Vector2(280, 44)
+layout_mode = 2
+theme_type_variation = &"Accent"
+text = "Run fortsetzen"
+visible = false
+
+[node name="NewRunButton" type="Button" parent="Center/VBox"]
+custom_minimum_size = Vector2(280, 48)
+layout_mode = 2
+theme_type_variation = &"Accent"
+text = "Neuer Run"
+
+[node name="CoopButton" type="Button" parent="Center/VBox"]
+custom_minimum_size = Vector2(280, 40)
+layout_mode = 2
+text = "Co-Op (LAN)"
+
+[node name="DailyButton" type="Button" parent="Center/VBox"]
+custom_minimum_size = Vector2(280, 40)
+layout_mode = 2
+text = "Daily Challenge"
+
+[node name="SandboxButton" type="Button" parent="Center/VBox"]
+custom_minimum_size = Vector2(280, 40)
+layout_mode = 2
+text = "Schmiede-Probe (Sandbox)"
+visible = false
+
+[node name="WorkshopButton" type="Button" parent="Center/VBox"]
+custom_minimum_size = Vector2(280, 40)
+layout_mode = 2
+text = "Werkstatt (Permanente Aufrüstungen)"
+
+[node name="CodexButton" type="Button" parent="Center/VBox"]
+custom_minimum_size = Vector2(280, 40)
+layout_mode = 2
+text = "Item-Codex"
+
+[node name="StatsButton" type="Button" parent="Center/VBox"]
+custom_minimum_size = Vector2(280, 40)
+layout_mode = 2
+text = "Statistiken"
+
+[node name="SettingsButton" type="Button" parent="Center/VBox"]
+custom_minimum_size = Vector2(280, 40)
+layout_mode = 2
+text = "Einstellungen"
+
+[node name="QuitButton" type="Button" parent="Center/VBox"]
+custom_minimum_size = Vector2(280, 40)
+layout_mode = 2
+text = "Beenden"
+
+[node name="VersionLabel" type="Label" parent="."]
+layout_mode = 1
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -180.0
+offset_top = -28.0
+offset_right = -12.0
+offset_bottom = -8.0
+grow_horizontal = 0
+grow_vertical = 0
+text = "v0.2.0"
+horizontal_alignment = 2
+theme_override_font_sizes/font_size = 11
+theme_override_colors/font_color = Color(0.55, 0.50, 0.42, 1)

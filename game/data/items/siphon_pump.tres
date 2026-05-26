@@ -1,0 +1,31 @@
+[gd_resource type="Resource" script_class="Item" load_steps=6 format=3]
+
+[ext_resource type="Script" path="res://data/Item.gd" id="1"]
+[ext_resource type="Script" path="res://data/effects/DealDamageEffect.gd" id="2"]
+[ext_resource type="Script" path="res://data/effects/HealSelfEffect.gd" id="3"]
+[ext_resource type="Texture2D" path="res://assets/items/siphon_pump.png" id="4"]
+
+[sub_resource type="Resource" id="effect_damage"]
+script = ExtResource("2")
+hook = 1
+tag_filter = &""
+amount = 6
+
+[sub_resource type="Resource" id="effect_heal"]
+script = ExtResource("3")
+hook = 1
+tag_filter = &""
+amount = 4
+
+[resource]
+script = ExtResource("1")
+id = &"siphon_pump"
+display_name = "Saugpumpe"
+description = "Saugt aus dem Feind, gibt dem Turm zurueck."
+flavor_text = "Industrie-Vampirismus, technisch betrachtet."
+rarity = 2
+tags = Array[StringName]([&"mechanical", &"support"])
+floor_affinity = Array[StringName]([&"workshop"])
+cooldown_seconds = 4.5
+effects = Array[Resource]([SubResource("effect_damage"), SubResource("effect_heal")])
+icon = ExtResource("4")

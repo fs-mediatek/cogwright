@@ -1,0 +1,26 @@
+[gd_resource type="Resource" script_class="Item" load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://data/Item.gd" id="1"]
+[ext_resource type="Script" path="res://data/effects/BoostFloorEffect.gd" id="2"]
+[ext_resource type="Texture2D" path="res://assets/items/ammo_belt.png" id="3"]
+
+[sub_resource type="Resource" id="effect_boost"]
+script = ExtResource("2")
+hook = 1
+tag_filter = &""
+floor_offset = 1
+cooldown_reduction_percent = 30.0
+duration_seconds = 4.0
+
+[resource]
+script = ExtResource("1")
+id = &"ammo_belt"
+display_name = "Munitionsband"
+description = "Verkürzt die Cooldowns aller Items auf der Etage darüber um 30% für 4s — Munition ohne Pause."
+flavor_text = "Glieder aus Brass, Hülsen wie Perlen. Wer das Band füttert, hat keine Zeit zum Atmen."
+rarity = 2
+tags = Array[StringName]([&"mechanical", &"sync", &"support"])
+floor_affinity = Array[StringName]([&"workshop"])
+cooldown_seconds = 4.0
+effects = Array[ExtResource("2")]([SubResource("effect_boost")])
+icon = ExtResource("3")

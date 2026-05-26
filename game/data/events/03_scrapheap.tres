@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="EventConfig" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://data/EventConfig.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = &"scrapheap"
+title = "Schrotthalde"
+description = "Ein Berg ausgemusterter Werkstatt-Teile, irgendwo glitzert was. Du könntest etwas Brauchbares finden — oder dich an einer scharfen Kante verletzen."
+choice_labels = Array[String](["Tief wühlen (Risiko)", "Vorsichtig stochern", "Nichts tun"])
+choice_descriptions = Array[String]([
+	"50/50: entweder +1 Reward-Item oder -20 HP.",
+	"+15 Gold sicher.",
+	"Weiter ohne Risiko.",
+])
+choice_outcomes = Array[String](["random_item_or_damage:20", "gold:15", "noop"])

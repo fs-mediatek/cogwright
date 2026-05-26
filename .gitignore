@@ -1,0 +1,43 @@
+# Godot Cache & Imports
+.godot/
+.import/
+*.import.tmp
+log/
+logs/
+
+# Godot user-local (nicht ins Repo)
+export_presets.cfg.local
+
+# Build-Output
+game/build/
+game/Cogwright-Testbuild/
+release/
+*.tpz
+*.exe
+*.pck
+
+# Lose ChatGPT-Image-Files im Projekt-Root (gehoeren nicht ins Repo)
+game/ChatGPT*.png
+game/ChatGPT*.png.import
+
+# Lokale Tools (jeder Dev installiert selbst)
+bin/
+docs/
+
+# OS / Editor
+Thumbs.db
+.DS_Store
+.vs/
+.vscode/
+*.user
+*.tmp
+*.swp
+*.bak
+
+# User-Data (Saves & Settings landen unter AppData, nicht im Repo)
+*.save
+*.cfg.local
+
+# Audio-Diag, Battle-Diag (debug-Logs)
+audio_diag.log
+bossintro_diag.log

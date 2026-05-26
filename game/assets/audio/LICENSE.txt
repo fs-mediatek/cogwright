@@ -1,0 +1,7 @@
+﻿Audio assets from Kenney (kenney.nl) — CC0 license.
+Source packs: Impact Sounds, Interface Sounds, Sci-fi Sounds.
+
+
+--- Music ---
+battle_robotic_city.ogg — 'Robotic City' (S31) — CC0 — OpenGameArt
+menu_factory.ogg — 'Factory Ambiance' (yd) — CC0 — OpenGameArt

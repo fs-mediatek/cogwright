@@ -1,0 +1,24 @@
+[gd_resource type="Resource" script_class="Item" load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://data/Item.gd" id="1"]
+[ext_resource type="Script" path="res://data/effects/HealSelfEffect.gd" id="2"]
+[ext_resource type="Texture2D" path="res://assets/items/repair_drone.png" id="3"]
+
+[sub_resource type="Resource" id="effect_heal"]
+script = ExtResource("2")
+hook = 1
+tag_filter = &""
+amount = 18
+
+[resource]
+script = ExtResource("1")
+id = &"repair_drone"
+display_name = "Reparatur-Drohne"
+description = "Eine kleine Drohne schwirrt durch den Turm und repariert beschädigte Teile."
+flavor_text = "Niemand weiß, ob sie hört. Aber sie summt zurück, wenn man sie anspricht."
+rarity = 2
+tags = Array[StringName]([&"mechanical", &"support"])
+floor_affinity = Array[StringName]([&"workshop"])
+cooldown_seconds = 4.5
+effects = Array[ExtResource("2")]([SubResource("effect_heal")])
+icon = ExtResource("3")

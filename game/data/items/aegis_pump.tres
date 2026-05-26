@@ -1,0 +1,25 @@
+[gd_resource type="Resource" script_class="Item" load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://data/Item.gd" id="1"]
+[ext_resource type="Script" path="res://data/effects/ShieldEffect.gd" id="2"]
+[ext_resource type="Texture2D" path="res://assets/items/aegis_pump.png" id="3"]
+
+[sub_resource type="Resource" id="effect_shield"]
+script = ExtResource("2")
+hook = 7
+tag_filter = &""
+shield_amount = 15
+duration_seconds = 4.0
+
+[resource]
+script = ExtResource("1")
+id = &"aegis_pump"
+display_name = "Dampfdruck-Schild"
+description = "Reagiert auf Treffer: gibt 15 Absorbtion fuer 4s. Maximal beim Maximalstress."
+flavor_text = "Je heftiger der Druck, desto staerker die Antwort."
+rarity = 2
+tags = Array[StringName]([&"steam", &"reactive", &"support"])
+floor_affinity = Array[StringName]([&"foundation"])
+cooldown_seconds = 99.0
+effects = Array[ExtResource("2")]([SubResource("effect_shield")])
+icon = ExtResource("3")

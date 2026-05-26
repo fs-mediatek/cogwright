@@ -1,0 +1,108 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/view/ItemReward.gd" id="1"]
+[ext_resource type="Script" path="res://scripts/view/AtmosphericBackground.gd" id="2"]
+
+[node name="ItemReward" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1")
+
+[node name="Background" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.082, 0.062, 0.047, 1)
+
+[node name="Atmosphere" type="Control" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("2")
+cog_count = 0
+steam_puff_count = 0
+pipe_columns = 0
+rng_seed = 101
+
+[node name="Layout" type="VBoxContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 32.0
+offset_top = 24.0
+offset_right = -32.0
+offset_bottom = -24.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 18
+
+[node name="TitleLabel" type="Label" parent="Layout"]
+layout_mode = 2
+theme_type_variation = &"GameTitle"
+theme_override_font_sizes/font_size = 36
+text = "Sieg!"
+horizontal_alignment = 1
+
+[node name="SubtitleLabel" type="Label" parent="Layout"]
+layout_mode = 2
+theme_type_variation = &"GameSubtitle"
+text = "Wähle eine Belohnung."
+horizontal_alignment = 1
+
+[node name="InventoryPanel" type="PanelContainer" parent="Layout"]
+layout_mode = 2
+
+[node name="InventoryScroll" type="ScrollContainer" parent="Layout/InventoryPanel"]
+layout_mode = 2
+horizontal_scroll_mode = 2
+vertical_scroll_mode = 0
+custom_minimum_size = Vector2(0, 64)
+
+[node name="InventoryStrip" type="HBoxContainer" parent="Layout/InventoryPanel/InventoryScroll"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="DamagePanel" type="PanelContainer" parent="Layout"]
+layout_mode = 2
+visible = false
+
+[node name="DamageVBox" type="VBoxContainer" parent="Layout/DamagePanel"]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="DamageTitle" type="Label" parent="Layout/DamagePanel/DamageVBox"]
+layout_mode = 2
+text = "Schaden-Auswertung"
+theme_override_font_sizes/font_size = 14
+theme_override_colors/font_color = Color(0.95, 0.78, 0.35, 1)
+
+[node name="DamageRows" type="VBoxContainer" parent="Layout/DamagePanel/DamageVBox"]
+layout_mode = 2
+theme_override_constants/separation = 2
+
+[node name="ItemsContainer" type="HBoxContainer" parent="Layout"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/separation = 20
+alignment = 1
+
+[node name="Footer" type="HBoxContainer" parent="Layout"]
+layout_mode = 2
+alignment = 1
+
+[node name="SkipButton" type="Button" parent="Layout/Footer"]
+custom_minimum_size = Vector2(200, 36)
+layout_mode = 2
+text = "Überspringen"

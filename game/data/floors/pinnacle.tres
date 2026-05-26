@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="FloorConfig" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://data/FloorConfig.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = &"pinnacle"
+display_name = "Observatorium"
+hp_modifier = -0.2
+cooldown_speed_modifier = 0.25
+damage_modifier = 0.0
+affinity_tags = Array[StringName]([&"ranged", &"precision", &"scout", &"fire"])
+slot_count = 3

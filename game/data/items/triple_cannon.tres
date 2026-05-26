@@ -1,0 +1,36 @@
+[gd_resource type="Resource" script_class="Item" load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://data/Item.gd" id="1"]
+[ext_resource type="Script" path="res://data/effects/DealDamageEffect.gd" id="2"]
+[ext_resource type="Texture2D" path="res://assets/items/triple_cannon.png" id="3"]
+
+[sub_resource type="Resource" id="effect_shot1"]
+script = ExtResource("2")
+hook = 1
+tag_filter = &""
+amount = 6
+
+[sub_resource type="Resource" id="effect_shot2"]
+script = ExtResource("2")
+hook = 1
+tag_filter = &""
+amount = 6
+
+[sub_resource type="Resource" id="effect_shot3"]
+script = ExtResource("2")
+hook = 1
+tag_filter = &""
+amount = 6
+
+[resource]
+script = ExtResource("1")
+id = &"triple_cannon"
+display_name = "Drillingsgeschütz"
+description = "Drei kurze Brass-Geschützrohre in einer Lafette. Feuert eine Salve aus drei Treffern in Folge."
+flavor_text = "Drei Schüsse, ein Atemzug. Wer den ersten überlebt, hört den zweiten nicht mehr."
+rarity = 2
+tags = Array[StringName]([&"ranged", &"heavy", &"mechanical"])
+floor_affinity = Array[StringName]([&"pinnacle"])
+cooldown_seconds = 3.5
+effects = Array[ExtResource("2")]([SubResource("effect_shot1"), SubResource("effect_shot2"), SubResource("effect_shot3")])
+icon = ExtResource("3")

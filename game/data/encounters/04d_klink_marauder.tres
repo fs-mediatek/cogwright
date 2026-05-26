@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="EncounterConfig" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://data/EncounterConfig.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = &"klink_marauder"
+display_name = "Klink-Maraudeur"
+description = "Schwer gepanzert, schwer zu knacken. Greift mit Wucht an."
+base_hp = 235
+item_ids = Array[StringName]([&"piston_engine", &"flame_lance", &"chronometer", &"forge_hearth"])
+slot_indices = Array[int]([0, 7, 4, 1])

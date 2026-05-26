@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="EventConfig" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://data/EventConfig.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = &"clockmaker_apprentice"
+title = "Lehrling der Uhrmacherin"
+description = "Ein junger Lehrling spricht dich an: Er sucht dringend ein Test-Item."
+choice_labels = Array[String](["Spende Item (+40 Gold, +20 HP)", "Kaufe sein Chronometer (45 Gold)", "Weiterziehen"])
+choice_descriptions = Array[String](["Verlierst zufaelliges Item.", "Erhaelst Chronometer, falls genug Gold.", "Kein Effekt."])
+choice_outcomes = Array[String](["trade_inventory_for_gold_hp:40:20", "item:chronometer:-45", "noop"])

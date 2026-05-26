@@ -1,0 +1,26 @@
+[gd_resource type="Resource" script_class="Item" load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://data/Item.gd" id="1"]
+[ext_resource type="Script" path="res://data/effects/TagBonusEffect.gd" id="2"]
+[ext_resource type="Texture2D" path="res://assets/items/bellows_lung.png" id="3"]
+
+[sub_resource type="Resource" id="effect_tag"]
+script = ExtResource("2")
+hook = 1
+tag_filter = &""
+bonus_tag = &"fire"
+bonus_damage_percent = 20.0
+duration_seconds = 6.0
+
+[resource]
+script = ExtResource("1")
+id = &"bellows_lung"
+display_name = "Blasebalg-Lunge"
+description = "Pumpt Luft in alle [fire]-Items und verstaerkt sie."
+flavor_text = "Atmet wie ein Drache, aus Leder und Kupfer."
+rarity = 1
+tags = Array[StringName]([&"steam", &"support"])
+floor_affinity = Array[StringName]([&"foundation"])
+cooldown_seconds = 3.5
+effects = Array[ExtResource("2")]([SubResource("effect_tag")])
+icon = ExtResource("3")

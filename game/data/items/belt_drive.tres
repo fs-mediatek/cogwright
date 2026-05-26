@@ -1,0 +1,25 @@
+[gd_resource type="Resource" script_class="Item" load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://data/Item.gd" id="1"]
+[ext_resource type="Script" path="res://data/effects/BoostNeighborEffect.gd" id="2"]
+[ext_resource type="Texture2D" path="res://assets/items/belt_drive.png" id="3"]
+
+[sub_resource type="Resource" id="effect_main"]
+script = ExtResource("2")
+hook = 1
+tag_filter = &""
+cooldown_reduction_percent = 20
+duration_seconds = 2.5
+
+[resource]
+script = ExtResource("1")
+id = &"belt_drive"
+display_name = "Riemenscheibe"
+description = "Stetiger Antrieb. Boostet alle Nachbar-Items kurz aber häufig."
+flavor_text = "Das Brummen der Werkstatt."
+rarity = 1
+tags = Array[StringName]([&"mechanical", &"sync", &"modifier"])
+floor_affinity = Array[StringName]([&"workshop"])
+cooldown_seconds = 2.5
+effects = Array[ExtResource("2")]([SubResource("effect_main")])
+icon = ExtResource("3")

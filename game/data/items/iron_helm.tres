@@ -1,0 +1,24 @@
+[gd_resource type="Resource" script_class="Item" load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://data/Item.gd" id="1"]
+[ext_resource type="Script" path="res://data/effects/HealSelfEffect.gd" id="2"]
+[ext_resource type="Texture2D" path="res://assets/items/iron_helm.png" id="3"]
+
+[sub_resource type="Resource" id="effect_heal"]
+script = ExtResource("2")
+hook = 7
+tag_filter = &""
+amount = 6
+
+[resource]
+script = ExtResource("1")
+id = &"iron_helm"
+display_name = "Eisenhelm"
+description = "Reagiert auf jeden Treffer mit einer kleinen Reparatur."
+flavor_text = "Mehr Schutzpatron als Helm."
+rarity = 1
+tags = Array[StringName]([&"heavy", &"support", &"reactive"])
+floor_affinity = Array[StringName]([&"foundation"])
+cooldown_seconds = 99.0
+effects = Array[ExtResource("2")]([SubResource("effect_heal")])
+icon = ExtResource("3")

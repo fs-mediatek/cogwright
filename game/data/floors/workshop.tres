@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="FloorConfig" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://data/FloorConfig.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = &"workshop"
+display_name = "Werkstatt"
+hp_modifier = 0.0
+cooldown_speed_modifier = 0.0
+damage_modifier = 0.05
+affinity_tags = Array[StringName]([&"mechanical", &"crafting", &"modifier"])
+slot_count = 3

@@ -1,0 +1,23 @@
+:root {
+  --cw-bg_deep_brown: #15100C; /* Background deep workshop brown */
+  --cw-bg_dark_wood: #1B140F; /* Dark wood */
+  --cw-bg_mid_brown: #2A2118; /* Mid brown */
+  --cw-bg_light_wood: #42342A; /* Light wood */
+  --cw-brass_bright_gold: #F2C75A; /* Bright gold */
+  --cw-brass: #D9A640; /* Brass */
+  --cw-brass_antique: #A37E2C; /* Antique brass */
+  --cw-bronze_dark: #5E4818; /* Dark bronze */
+  --cw-tag_fire: #E55934; /* Fire tag */
+  --cw-tag_steam: #A8C7E5; /* Steam tag */
+  --cw-tag_pressure: #F2A93B; /* Pressure tag */
+  --cw-tag_mechanical: #8C7B5C; /* Mechanical tag */
+  --cw-tag_blunt: #7A6A52; /* Blunt tag */
+  --cw-tag_precision: #5DB3D9; /* Precision tag */
+  --cw-tag_support: #7CC279; /* Support tag */
+  --cw-tag_ranged: #C97BBF; /* Ranged tag */
+  --cw-tag_heavy: #6B5A40; /* Heavy tag */
+  --cw-tag_scout: #6FA670; /* Scout tag */
+  --cw-tag_sync: #D49845; /* Sync tag */
+  --cw-tag_modifier: #9B6BC2; /* Modifier tag */
+  --cw-tag_reactive: #D4674A; /* Reactive tag */
+}

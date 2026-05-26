@@ -1,0 +1,25 @@
+GIMP Palette
+Name: Cogwright
+Columns: 6
+#
+ 21  16  12	Background deep workshop brown
+ 27  20  15	Dark wood
+ 42  33  24	Mid brown
+ 66  52  42	Light wood
+242 199  90	Bright gold
+217 166  64	Brass
+163 126  44	Antique brass
+ 94  72  24	Dark bronze
+229  89  52	Fire tag
+168 199 229	Steam tag
+242 169  59	Pressure tag
+140 123  92	Mechanical tag
+122 106  82	Blunt tag
+ 93 179 217	Precision tag
+124 194 121	Support tag
+201 123 191	Ranged tag
+107  90  64	Heavy tag
+111 166 112	Scout tag
+212 152  69	Sync tag
+155 107 194	Modifier tag
+212 103  74	Reactive tag

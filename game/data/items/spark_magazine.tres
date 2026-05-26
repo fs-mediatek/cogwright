@@ -1,0 +1,24 @@
+[gd_resource type="Resource" script_class="Item" load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://data/Item.gd" id="1"]
+[ext_resource type="Script" path="res://data/effects/DealDamageEffect.gd" id="2"]
+[ext_resource type="Texture2D" path="res://assets/items/spark_magazine.png" id="3"]
+
+[sub_resource type="Resource" id="effect_main"]
+script = ExtResource("2")
+hook = 1
+tag_filter = &""
+amount = 26
+
+[resource]
+script = ExtResource("1")
+id = &"spark_magazine"
+display_name = "Funken-Magazin"
+description = "Ein Magazin voller Mini-Funken, feuert massiven Burst alle paar Sekunden."
+flavor_text = "Erst Klick, dann Klack, dann Krawumm."
+rarity = 2
+tags = Array[StringName]([&"fire", &"ranged", &"heavy"])
+floor_affinity = Array[StringName]([&"pinnacle"])
+cooldown_seconds = 4.5
+effects = Array[ExtResource("2")]([SubResource("effect_main")])
+icon = ExtResource("3")

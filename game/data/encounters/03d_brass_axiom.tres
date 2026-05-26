@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="EncounterConfig" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://data/EncounterConfig.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = &"brass_axiom"
+display_name = "Messing-Axiom"
+description = "Praezise Ingenieurskonstruktion mit messerscharfer Mechanik."
+base_hp = 185
+item_ids = Array[StringName]([&"flintlock_pistol", &"gear_sync", &"piston_engine"])
+slot_indices = Array[int]([6, 4, 1])
