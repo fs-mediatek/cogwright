@@ -1,21 +1,21 @@
 {
-    "version":  "0.3.4",
-    "notes":  "Release v0.3.4 - siehe Commit-History fuer Details.",
-    "released_at":  "2026-05-26T21:42:09Z",
-    "download_url":  "https://github.com/fs-mediatek/cogwright/releases/download/v0.3.4/Cogwright-Setup-0.3.4.exe",
-    "base_url":  "https://github.com/fs-mediatek/cogwright/releases/download/v0.3.4/",
+    "version":  "0.3.5",
+    "notes":  "Release v0.3.5 - siehe Commit-History fuer Details.",
+    "released_at":  "2026-05-26T21:50:45Z",
+    "download_url":  "https://github.com/fs-mediatek/cogwright/releases/download/v0.3.5/Cogwright-Setup-0.3.5.exe",
+    "base_url":  "https://github.com/fs-mediatek/cogwright/releases/download/v0.3.5/",
     "files":  {
                   "Cogwright-Update.bat":  "a82ba0b1d11d1d2455284bc734388de2731042cfa6be4393b380e1e7bdba7904",
-                  "Cogwright-Update.ps1":  "4c139f96feb216c97519033ac2d6f99e408015d988e91bc73b9fae6e8e9583ce",
-                  "Cogwright.pck":  "0403b386d4a76cf0381e36cd71daa39470915bcff20114b78c66be3e907745fe",
+                  "Cogwright-Update.ps1":  "330606479c5a5fb4f95727f17f0839f3642b72df46a15342be1eedfc447caebb",
+                  "Cogwright.pck":  "b0d0b9169fc89006d1add2663f55b98b3bb13ba2a8d1de33eabb32d311ff0e06",
                   "Cogwright.exe":  "0c0690839e6c9d181b74290f239c8fce67f5279517454e78a57cd9b580dfa465",
                   "hpatchz.exe":  "d4ba353cea752216d6c2dc32669681b55bd50dee24a58b2cc41e9933d81e91ff"
               },
     "pck_patch":  {
-                      "from_version":  "0.3.3",
-                      "from_pck_sha256":  "95a617e1df2d34bac29e8c15f9ea47fb530ffb96a7f9d30e2cfaa7934abd223e",
-                      "file":  "Cogwright-0.3.3-to-0.3.4.pck.patch",
-                      "sha256":  "725f5bebf6094824b50712cb9fbca92a36b27179e176a3348983df98d8ba419d",
-                      "size":  307
+                      "from_version":  "0.3.4",
+                      "from_pck_sha256":  "0403b386d4a76cf0381e36cd71daa39470915bcff20114b78c66be3e907745fe",
+                      "file":  "Cogwright-0.3.4-to-0.3.5.pck.patch",
+                      "sha256":  "3b1067639b71e6b96c1bfed845b4c47721d444fccf0e12cfd9b0888d1ea96505",
+                      "size":  92
                   }
 }
