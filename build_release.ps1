@@ -105,9 +105,26 @@ if (Test-Path "$build_dir\Cogwright.pck") {
 }
 Write-Host "Export erfolgreich: Cogwright.exe ($size_mb MB)$(if ($pck_size_mb -gt 0) { ' + Cogwright.pck (' + $pck_size_mb + ' MB)' })" -ForegroundColor Green
 
-# --- Updater-Files mit ins Build-Verzeichnis kopieren (fuer ZIP + Hash-Manifest) ---
+# --- HDiffPatch-Tooling finden ---
+$hdiffz = (Get-Command hdiffz -ErrorAction SilentlyContinue).Source
+$hpatchz = (Get-Command hpatchz -ErrorAction SilentlyContinue).Source
+if (-not $hdiffz) {
+    $hp_dir = Get-ChildItem "$env:LOCALAPPDATA\Microsoft\WinGet\Packages\sisong.HDiffPatch*" -Filter "hdiffz.exe" -Recurse -ErrorAction SilentlyContinue | Select-Object -First 1
+    if ($hp_dir) {
+        $hdiffz = $hp_dir.FullName
+        $hpatchz = Join-Path (Split-Path $hdiffz -Parent) "hpatchz.exe"
+    }
+}
+
+# --- Updater-Files + hpatchz mit ins Build-Verzeichnis kopieren ---
 Copy-Item "$project_root\installer\Cogwright-Update.ps1" "$build_dir\Cogwright-Update.ps1" -Force
 Copy-Item "$project_root\installer\Cogwright-Update.bat" "$build_dir\Cogwright-Update.bat" -Force
+if ($hpatchz -and (Test-Path $hpatchz)) {
+    Copy-Item $hpatchz "$build_dir\hpatchz.exe" -Force
+    Write-Host "hpatchz.exe mit ins Build kopiert" -ForegroundColor Green
+} else {
+    Write-Warning "hpatchz.exe nicht gefunden - Updater kann keine Patches anwenden (nur Full-Download)."
+}
 
 # --- ZIP-Distribution ---
 $zip_path = "$release_dir\Cogwright-$version.zip"
@@ -119,7 +136,7 @@ $zip_size_mb = [math]::Round((Get-Item $zip_path).Length / 1MB, 1)
 Write-Host "ZIP erstellt: Cogwright-$version.zip ($zip_size_mb MB)" -ForegroundColor Green
 
 # --- Hashes pro Update-File berechnen ---
-$update_files = @("Cogwright.exe", "Cogwright.pck", "Cogwright-Update.ps1", "Cogwright-Update.bat")
+$update_files = @("Cogwright.exe", "Cogwright.pck", "Cogwright-Update.ps1", "Cogwright-Update.bat", "hpatchz.exe")
 $file_hashes = @{}
 $total_files = 0
 foreach ($f in $update_files) {
@@ -132,18 +149,60 @@ foreach ($f in $update_files) {
 }
 Write-Host "Hashes berechnet fuer $total_files Files" -ForegroundColor Green
 
+# --- Binary-Diff-Patch der PCK gegen die vorherige Version ---
+# Vorherige PCK liegt in release/prev/Cogwright.pck (vom letzten Build).
+$prev_dir = "$release_dir\prev"
+$prev_pck = "$prev_dir\Cogwright.pck"
+$prev_ver_file = "$prev_dir\version.txt"
+$pck_patch_info = $null
+$new_pck = "$build_dir\Cogwright.pck"
+if ($hdiffz -and (Test-Path $hdiffz) -and (Test-Path $prev_pck) -and (Test-Path $prev_ver_file) -and (Test-Path $new_pck)) {
+    $prev_version = (Get-Content $prev_ver_file -Raw).Trim()
+    $prev_pck_hash = (Get-FileHash -Algorithm SHA256 -Path $prev_pck).Hash.ToLower()
+    $patch_name = "Cogwright-$prev_version-to-$version.pck.patch"
+    $patch_path = "$release_dir\$patch_name"
+    Write-Host "Erzeuge Binary-Patch $prev_version -> $version ..." -ForegroundColor Cyan
+    & $hdiffz -f $prev_pck $new_pck $patch_path 2>&1 | Out-Null
+    if (Test-Path $patch_path) {
+        $patch_size = (Get-Item $patch_path).Length
+        $patch_mb = [math]::Round($patch_size / 1MB, 2)
+        $patch_hash = (Get-FileHash -Algorithm SHA256 -Path $patch_path).Hash.ToLower()
+        $pck_patch_info = [ordered]@{
+            from_version   = $prev_version
+            from_pck_sha256 = $prev_pck_hash
+            file           = $patch_name
+            sha256         = $patch_hash
+            size           = $patch_size
+        }
+        Write-Host "Patch erstellt: $patch_name ($patch_mb MB statt $pck_size_mb MB voll)" -ForegroundColor Green
+    } else {
+        Write-Warning "Patch-Erzeugung fehlgeschlagen - Updater nutzt Full-Download."
+    }
+} else {
+    Write-Host "Kein Vorgaenger-PCK fuer Diff vorhanden (erster Build mit Patch-System) - nur Full-Download." -ForegroundColor Yellow
+}
+
+# Aktuelle PCK + Version als 'prev' fuer den naechsten Build sichern
+if (-not (Test-Path $prev_dir)) { New-Item -ItemType Directory -Path $prev_dir -Force | Out-Null }
+Copy-Item $new_pck $prev_pck -Force
+$version | Out-File $prev_ver_file -Encoding utf8 -NoNewline
+
 # --- Manifest fuer Update-Check (inkrementeller Updater) ---
 $manifest_path = "$release_dir\manifest.json"
 $base_url = "https://github.com/fs-mediatek/cogwright/releases/download/v$version/"
 $dl_url = if ($DownloadUrl) { $DownloadUrl } else { "$base_url" + "Cogwright-Setup-$version.exe" }
-$manifest = [ordered]@{
+$manifest_obj = [ordered]@{
     version       = $version
     notes         = "Release v$version - siehe Commit-History fuer Details."
     released_at   = (Get-Date -Format "yyyy-MM-ddTHH:mm:ssZ")
     download_url  = $dl_url
     base_url      = $base_url
     files         = $file_hashes
-} | ConvertTo-Json -Depth 4
+}
+if ($pck_patch_info) {
+    $manifest_obj["pck_patch"] = $pck_patch_info
+}
+$manifest = $manifest_obj | ConvertTo-Json -Depth 4
 $manifest | Out-File -FilePath $manifest_path -Encoding UTF8
 Write-Host "Manifest geschrieben: $manifest_path" -ForegroundColor Green
 

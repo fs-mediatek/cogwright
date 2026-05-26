@@ -35,6 +35,7 @@ Name: "desktopicon"; Description: "Desktop-Verknuepfung erstellen"; GroupDescrip
 [Files]
 Source: "..\game\build\Cogwright.exe"; DestDir: "{app}"; Flags: ignoreversion
 Source: "..\game\build\Cogwright.pck"; DestDir: "{app}"; Flags: ignoreversion
+Source: "..\game\build\hpatchz.exe"; DestDir: "{app}"; Flags: ignoreversion
 Source: "Cogwright-Update.ps1"; DestDir: "{app}"; Flags: ignoreversion
 Source: "Cogwright-Update.bat"; DestDir: "{app}"; Flags: ignoreversion
 

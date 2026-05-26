@@ -71,7 +71,6 @@ Write-Log "Remote-Version: $($manifest.version)"
 Write-Log "Base-URL: $base_url"
 Write-Log "Files im Manifest: $($manifest.files.PSObject.Properties.Count)"
 
-# 3+4. Vergleich + Download veraenderter Dateien
 $remote_files = @{}
 foreach ($prop in $manifest.files.PSObject.Properties) {
     $remote_files[$prop.Name] = $prop.Value
@@ -80,8 +79,59 @@ foreach ($prop in $manifest.files.PSObject.Properties) {
 $downloaded = 0
 $unchanged = 0
 $failed = 0
+$patched = 0
 
+# --- 3a. PCK via Binary-Patch aktualisieren, wenn moeglich ---
+# Bedingungen: manifest hat pck_patch, lokale PCK matched from_pck_sha256, hpatchz vorhanden.
+$pck_local = Join-Path $install_dir "Cogwright.pck"
+$pck_handled_by_patch = $false
+$hpatchz = Join-Path $install_dir "hpatchz.exe"
+if ($manifest.PSObject.Properties.Name -contains "pck_patch" -and $manifest.pck_patch -and (Test-Path $hpatchz)) {
+    $pp = $manifest.pck_patch
+    $local_pck_hash = Get-FileSha256 -Path $pck_local
+    $target_pck_hash = $remote_files["Cogwright.pck"].ToLower()
+    if ($local_pck_hash -eq $target_pck_hash) {
+        Write-Log "PCK bereits aktuell"
+        $pck_handled_by_patch = $true
+        $unchanged++
+    } elseif ($local_pck_hash -eq $pp.from_pck_sha256.ToLower()) {
+        Write-Log "Wende PCK-Patch an: $($pp.file) (von v$($pp.from_version))"
+        $patch_url = $base_url + $pp.file
+        $patch_tmp = Join-Path $env:TEMP $pp.file
+        $pck_new = "$pck_local.new"
+        try {
+            Invoke-WebRequest -Uri $patch_url -OutFile $patch_tmp -UseBasicParsing -Headers @{"User-Agent"="Cogwright-Updater"}
+            $patch_mb = [math]::Round((Get-Item $patch_tmp).Length / 1MB, 2)
+            Write-Log "Patch geladen: $patch_mb MB"
+            # hpatchz <old> <patch> <new>
+            & $hpatchz $pck_local $patch_tmp $pck_new 2>&1 | Out-Null
+            if (Test-Path $pck_new) {
+                $rebuilt_hash = Get-FileSha256 -Path $pck_new
+                if ($rebuilt_hash -eq $target_pck_hash) {
+                    Remove-Item $pck_local -Force
+                    Move-Item $pck_new $pck_local
+                    Write-Log "PCK erfolgreich gepatcht (verifiziert)"
+                    $pck_handled_by_patch = $true
+                    $patched++
+                } else {
+                    Write-Log "WARN: Gepatchte PCK Hash-Mismatch (erwartet $target_pck_hash, bekam $rebuilt_hash) — Fallback Full-Download"
+                    Remove-Item $pck_new -Force -ErrorAction SilentlyContinue
+                }
+            } else {
+                Write-Log "WARN: hpatchz erzeugte keine Ausgabe — Fallback Full-Download"
+            }
+            Remove-Item $patch_tmp -Force -ErrorAction SilentlyContinue
+        } catch {
+            Write-Log "FEHLER beim PCK-Patch: $_ — Fallback Full-Download"
+        }
+    } else {
+        Write-Log "Lokale PCK passt nicht zur Patch-Basis (v$($pp.from_version)) — Full-Download der PCK"
+    }
+}
+
+# --- 3b+4. Restliche Files (und PCK falls nicht gepatcht) per Hash-Vergleich + Full-Download ---
 foreach ($rel_path in $remote_files.Keys) {
+    if ($rel_path -eq "Cogwright.pck" -and $pck_handled_by_patch) { continue }
     $remote_hash = $remote_files[$rel_path].ToLower()
     $local_path = Join-Path $install_dir $rel_path
     $local_hash = Get-FileSha256 -Path $local_path
@@ -93,15 +143,14 @@ foreach ($rel_path in $remote_files.Keys) {
 
     $file_url = $base_url + $rel_path
     $tmp_path = "$local_path.new"
-    Write-Log "Lade: $rel_path ($($remote_hash.Substring(0, 8))...)"
+    Write-Log "Lade (voll): $rel_path ($($remote_hash.Substring(0, 8))...)"
     try {
         $local_dir = Split-Path $local_path -Parent
         if (-not (Test-Path $local_dir)) { New-Item -ItemType Directory -Path $local_dir -Force | Out-Null }
-        Invoke-WebRequest -Uri $file_url -OutFile $tmp_path -UseBasicParsing
-        # Hash verifizieren
+        Invoke-WebRequest -Uri $file_url -OutFile $tmp_path -UseBasicParsing -Headers @{"User-Agent"="Cogwright-Updater"}
         $new_hash = Get-FileSha256 -Path $tmp_path
         if ($new_hash -ne $remote_hash) {
-            Write-Log "WARN: Hash-Mismatch bei $rel_path (erwartet $remote_hash, bekam $new_hash) — wird trotzdem uebernommen"
+            Write-Log "WARN: Hash-Mismatch bei $rel_path — wird trotzdem uebernommen"
         }
         if (Test-Path $local_path) { Remove-Item $local_path -Force }
         Move-Item $tmp_path $local_path
@@ -117,7 +166,7 @@ foreach ($rel_path in $remote_files.Keys) {
 # Wir loeschen nur Files unter dem Install-Dir die der frueheren Manifest-Liste entsprachen.
 # Konservativ: kein Cleanup, ueberlassen wir dem Uninstaller.
 
-Write-Log "Update abgeschlossen: $downloaded geladen, $unchanged unveraendert, $failed Fehler"
+Write-Log "Update abgeschlossen: $patched gepatcht, $downloaded voll geladen, $unchanged unveraendert, $failed Fehler"
 
 # 6. Cogwright neu starten
 $cogwright_exe = Join-Path $install_dir "Cogwright.exe"
