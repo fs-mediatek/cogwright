@@ -40,7 +40,7 @@ function Write-Banner {
     Write-Host ("=" * 56) -ForegroundColor DarkCyan
 }
 
-function Download-WithProgress {
+function Get-FileWithProgress {
     param([string]$Url, [string]$OutFile)
     $req = [System.Net.HttpWebRequest]::Create($Url)
     $req.UserAgent = "Cogwright-Updater"
@@ -92,7 +92,7 @@ while ((Get-Process Cogwright -ErrorAction SilentlyContinue) -and $timeout -gt 0
     $timeout--
 }
 if (Get-Process Cogwright -ErrorAction SilentlyContinue) {
-    Write-Log "Cogwright.exe laeuft noch — kill"
+    Write-Log "Cogwright.exe laeuft noch -kill"
     Get-Process Cogwright -ErrorAction SilentlyContinue | Stop-Process -Force
     Start-Sleep -Seconds 1
 }
@@ -152,7 +152,7 @@ if ($manifest.PSObject.Properties.Name -contains "pck_patch" -and $manifest.pck_
         $patch_tmp = Join-Path $env:TEMP $pp.file
         $pck_new = "$pck_local.new"
         try {
-            Download-WithProgress -Url $patch_url -OutFile $patch_tmp
+            Get-FileWithProgress -Url $patch_url -OutFile $patch_tmp
             $patch_mb = [math]::Round((Get-Item $patch_tmp).Length / 1MB, 2)
             Write-Host "  Wende Patch an..." -ForegroundColor Green
             Write-Log "Patch geladen: $patch_mb MB"
@@ -167,18 +167,18 @@ if ($manifest.PSObject.Properties.Name -contains "pck_patch" -and $manifest.pck_
                     $pck_handled_by_patch = $true
                     $patched++
                 } else {
-                    Write-Log "WARN: Gepatchte PCK Hash-Mismatch (erwartet $target_pck_hash, bekam $rebuilt_hash) — Fallback Full-Download"
+                    Write-Log "WARN: Gepatchte PCK Hash-Mismatch (erwartet $target_pck_hash, bekam $rebuilt_hash) -Fallback Full-Download"
                     Remove-Item $pck_new -Force -ErrorAction SilentlyContinue
                 }
             } else {
-                Write-Log "WARN: hpatchz erzeugte keine Ausgabe — Fallback Full-Download"
+                Write-Log "WARN: hpatchz erzeugte keine Ausgabe -Fallback Full-Download"
             }
             Remove-Item $patch_tmp -Force -ErrorAction SilentlyContinue
         } catch {
-            Write-Log "FEHLER beim PCK-Patch: $_ — Fallback Full-Download"
+            Write-Log "FEHLER beim PCK-Patch: $_ -Fallback Full-Download"
         }
     } else {
-        Write-Log "Lokale PCK passt nicht zur Patch-Basis (v$($pp.from_version)) — Full-Download der PCK"
+        Write-Log "Lokale PCK passt nicht zur Patch-Basis (v$($pp.from_version)) -Full-Download der PCK"
     }
 }
 
@@ -201,10 +201,10 @@ foreach ($rel_path in $remote_files.Keys) {
     try {
         $local_dir = Split-Path $local_path -Parent
         if (-not (Test-Path $local_dir)) { New-Item -ItemType Directory -Path $local_dir -Force | Out-Null }
-        Download-WithProgress -Url $file_url -OutFile $tmp_path
+        Get-FileWithProgress -Url $file_url -OutFile $tmp_path
         $new_hash = Get-FileSha256 -Path $tmp_path
         if ($new_hash -ne $remote_hash) {
-            Write-Log "WARN: Hash-Mismatch bei $rel_path — wird trotzdem uebernommen"
+            Write-Log "WARN: Hash-Mismatch bei $rel_path -wird trotzdem uebernommen"
         }
         if (Test-Path $local_path) { Remove-Item $local_path -Force }
         Move-Item $tmp_path $local_path
