@@ -32,6 +32,54 @@ function Get-FileSha256 {
     return (Get-FileHash -Algorithm SHA256 -Path $Path).Hash.ToLower()
 }
 
+function Write-Banner {
+    param([string]$Text)
+    Write-Host ""
+    Write-Host ("=" * 56) -ForegroundColor DarkCyan
+    Write-Host "  $Text" -ForegroundColor Cyan
+    Write-Host ("=" * 56) -ForegroundColor DarkCyan
+}
+
+function Download-WithProgress {
+    param([string]$Url, [string]$OutFile)
+    $req = [System.Net.HttpWebRequest]::Create($Url)
+    $req.UserAgent = "Cogwright-Updater"
+    $req.AllowAutoRedirect = $true
+    $resp = $req.GetResponse()
+    $total = $resp.ContentLength
+    $stream = $resp.GetResponseStream()
+    $fs = [System.IO.File]::Create($OutFile)
+    $buffer = New-Object byte[] 131072
+    $sum = 0
+    $lastPct = -1
+    try {
+        while (($read = $stream.Read($buffer, 0, $buffer.Length)) -gt 0) {
+            $fs.Write($buffer, 0, $read)
+            $sum += $read
+            if ($total -gt 0) {
+                $pct = [math]::Floor($sum / $total * 100)
+                if ($pct -ne $lastPct -and ($pct % 5 -eq 0)) {
+                    $bar = ("#" * ($pct / 5)).PadRight(20)
+                    Write-Host ("`r  [{0}] {1,3}%  {2:N1}/{3:N1} MB" -f $bar, $pct, ($sum/1MB), ($total/1MB)) -NoNewline
+                    $lastPct = $pct
+                }
+            }
+        }
+        Write-Host ""
+    } finally {
+        $fs.Close(); $stream.Close(); $resp.Close()
+    }
+}
+
+# Progress-Bar von Invoke-WebRequest drosselt PS5.1 stark -> aus.
+$ProgressPreference = 'SilentlyContinue'
+
+$Host.UI.RawUI.WindowTitle = "Cogwright Update"
+Clear-Host
+Write-Banner "COGWRIGHT UPDATER"
+Write-Host "  Bitte dieses Fenster offen lassen - das Spiel startet"
+Write-Host "  nach dem Update automatisch neu."
+
 Write-Log "=== Update gestartet ==="
 Write-Log "Install-Dir: $install_dir"
 Write-Log "Manifest-URL: $ManifestUrl"
@@ -50,6 +98,7 @@ if (Get-Process Cogwright -ErrorAction SilentlyContinue) {
 }
 
 # 2. files.json laden
+Write-Banner "Schritt 1/3: Update-Infos laden"
 $files_url = $ManifestUrl
 try {
     $manifest = Invoke-RestMethod -Uri $files_url -UseBasicParsing -Headers @{"User-Agent"="Cogwright-Updater"}
@@ -83,6 +132,7 @@ $patched = 0
 
 # --- 3a. PCK via Binary-Patch aktualisieren, wenn moeglich ---
 # Bedingungen: manifest hat pck_patch, lokale PCK matched from_pck_sha256, hpatchz vorhanden.
+Write-Banner "Schritt 2/3: Dateien aktualisieren"
 $pck_local = Join-Path $install_dir "Cogwright.pck"
 $pck_handled_by_patch = $false
 $hpatchz = Join-Path $install_dir "hpatchz.exe"
@@ -91,17 +141,20 @@ if ($manifest.PSObject.Properties.Name -contains "pck_patch" -and $manifest.pck_
     $local_pck_hash = Get-FileSha256 -Path $pck_local
     $target_pck_hash = $remote_files["Cogwright.pck"].ToLower()
     if ($local_pck_hash -eq $target_pck_hash) {
+        Write-Host "  Spieldaten bereits aktuell." -ForegroundColor Green
         Write-Log "PCK bereits aktuell"
         $pck_handled_by_patch = $true
         $unchanged++
     } elseif ($local_pck_hash -eq $pp.from_pck_sha256.ToLower()) {
+        Write-Host "  Lade Mini-Patch (statt voller Spieldaten)..." -ForegroundColor Green
         Write-Log "Wende PCK-Patch an: $($pp.file) (von v$($pp.from_version))"
         $patch_url = $base_url + $pp.file
         $patch_tmp = Join-Path $env:TEMP $pp.file
         $pck_new = "$pck_local.new"
         try {
-            Invoke-WebRequest -Uri $patch_url -OutFile $patch_tmp -UseBasicParsing -Headers @{"User-Agent"="Cogwright-Updater"}
+            Download-WithProgress -Url $patch_url -OutFile $patch_tmp
             $patch_mb = [math]::Round((Get-Item $patch_tmp).Length / 1MB, 2)
+            Write-Host "  Wende Patch an..." -ForegroundColor Green
             Write-Log "Patch geladen: $patch_mb MB"
             # hpatchz <old> <patch> <new>
             & $hpatchz $pck_local $patch_tmp $pck_new 2>&1 | Out-Null
@@ -143,11 +196,12 @@ foreach ($rel_path in $remote_files.Keys) {
 
     $file_url = $base_url + $rel_path
     $tmp_path = "$local_path.new"
+    Write-Host "  Lade $rel_path ..." -ForegroundColor Green
     Write-Log "Lade (voll): $rel_path ($($remote_hash.Substring(0, 8))...)"
     try {
         $local_dir = Split-Path $local_path -Parent
         if (-not (Test-Path $local_dir)) { New-Item -ItemType Directory -Path $local_dir -Force | Out-Null }
-        Invoke-WebRequest -Uri $file_url -OutFile $tmp_path -UseBasicParsing -Headers @{"User-Agent"="Cogwright-Updater"}
+        Download-WithProgress -Url $file_url -OutFile $tmp_path
         $new_hash = Get-FileSha256 -Path $tmp_path
         if ($new_hash -ne $remote_hash) {
             Write-Log "WARN: Hash-Mismatch bei $rel_path — wird trotzdem uebernommen"
@@ -168,11 +222,22 @@ foreach ($rel_path in $remote_files.Keys) {
 
 Write-Log "Update abgeschlossen: $patched gepatcht, $downloaded voll geladen, $unchanged unveraendert, $failed Fehler"
 
+if ($failed -gt 0) {
+    Write-Banner "Update mit Fehlern abgeschlossen ($failed)"
+    Write-Host "  Details siehe update.log im Spielordner." -ForegroundColor Yellow
+    Read-Host "  Druecke Enter zum Fortfahren"
+} else {
+    Write-Banner "Schritt 3/3: Update fertig - starte Spiel neu"
+}
+
 # 6. Cogwright neu starten
 $cogwright_exe = Join-Path $install_dir "Cogwright.exe"
 if (Test-Path $cogwright_exe) {
     Write-Log "Starte Cogwright neu"
+    Start-Sleep -Milliseconds 800
     Start-Process $cogwright_exe
 } else {
     Write-Log "WARN: Cogwright.exe nicht gefunden im Install-Dir"
+    Write-Host "  WARNUNG: Cogwright.exe nicht gefunden!" -ForegroundColor Red
+    Read-Host "  Druecke Enter zum Schliessen"
 }

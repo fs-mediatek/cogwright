@@ -58,8 +58,14 @@ func _on_update_download() -> void:
 	var install_dir: String = OS.get_executable_path().get_base_dir()
 	var updater_bat: String = install_dir.path_join("Cogwright-Update.bat")
 	if FileAccess.file_exists(updater_bat):
-		var args: PackedStringArray = [AppVersion.UPDATE_MANIFEST_URL, UpdateChecker.last_remote_version]
-		OS.create_process(updater_bat, args)
+		# Updater in SICHTBAREM Konsolenfenster starten (cmd start), damit der Spieler
+		# den Download-/Patch-Fortschritt sieht statt eines stillen Game-Exits.
+		var args: PackedStringArray = [
+			"/c", "start", "Cogwright Update",
+			"cmd", "/c", updater_bat,
+			AppVersion.UPDATE_MANIFEST_URL, UpdateChecker.last_remote_version,
+		]
+		OS.create_process("cmd.exe", args)
 		get_tree().quit()
 	elif UpdateChecker.last_download_url != "":
 		OS.shell_open(UpdateChecker.last_download_url)
