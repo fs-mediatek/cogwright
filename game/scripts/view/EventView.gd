@@ -13,6 +13,8 @@ const EVENT_PATHS: Array[String] = [
 	"res://data/events/10_steam_vent.tres",
 	"res://data/events/11_forge_offering.tres",
 	"res://data/events/12_mysterious_lever.tres",
+	"res://data/events/13_graviermeister.tres",
+	"res://data/events/14_faustischer_pakt.tres",
 ]
 
 @onready var _title_label: Label = $Layout/TitleLabel
@@ -73,9 +75,14 @@ func _on_choice(idx: int) -> void:
 func _apply_choice(idx: int) -> void:
 	if _resolved:
 		return
+	var outcome: String = _event.choice_outcomes[idx]
+	# Verzweigung: laedt ein Folge-Event in dieselbe Ansicht, ohne den Run-Schritt abzuschliessen.
+	if outcome.begins_with("branch:"):
+		AudioManager.ui("select")
+		_load_followup(outcome.substr("branch:".length()))
+		return
 	_resolved = true
 	AudioManager.ui("select")
-	var outcome: String = _event.choice_outcomes[idx]
 	var result_text: String = _resolve_outcome(outcome)
 	_result_label.text = "[center]%s[/center]" % result_text
 	_result_label.visible = true
@@ -148,7 +155,91 @@ func _resolve_outcome(outcome: String) -> String:
 			else:
 				RunState.tower_hp = max(1, RunState.tower_hp - dmg2)
 				return "✦ Eine scharfe Kante — -%d HP." % dmg2
+		"relic":
+			# relic:random  oder  relic:<id>  (optional :<hp_kosten>)
+			var which: String = parts[1] if parts.size() > 1 else "random"
+			var hp_cost: int = int(parts[2]) if parts.size() > 2 else 0
+			if hp_cost > 0:
+				RunState.tower_hp = max(1, RunState.tower_hp - hp_cost)
+			var rng_r := RandomNumberGenerator.new()
+			rng_r.seed = RunState.run_seed + RunState.current_encounter_idx * 3301 + 17
+			var grant_id: String = which
+			if which == "random":
+				var picks: Array[String] = RelicDB.random_unowned(RunState.active_relics, 1, rng_r)
+				if picks.is_empty():
+					RunState.gold += 40
+					return "✦ Du besitzt bereits alle Relikte — +40 Gold als Trost."
+				grant_id = picks[0]
+			if RunState.has_relic(grant_id):
+				RunState.gold += 40
+				return "✦ Relikt bereits in Besitz — +40 Gold."
+			RunState.add_relic(grant_id)
+			return "✦ Relikt erhalten: %s" % RelicDB.relic_name(grant_id)
+		"inscribe":
+			# inscribe:random  oder  inscribe:<inscription_id>  (optional :<gold_kosten>)
+			if RunState.inventory.is_empty():
+				return "Dein Inventar ist leer — nichts zu gravieren."
+			var insc_cost: int = int(parts[2]) if parts.size() > 2 else 0
+			if RunState.gold < insc_cost:
+				return "Du hast nicht genug Gold für die Gravur."
+			var rng_i := RandomNumberGenerator.new()
+			rng_i.seed = RunState.run_seed + RunState.current_encounter_idx * 5113 + 41
+			var insc_id: String = parts[1] if parts.size() > 1 else "random"
+			if insc_id == "random":
+				insc_id = InscriptionDB.random_choices(1, rng_i)[0]
+			RunState.gold -= insc_cost
+			# Bevorzugt ein platziertes Item, sonst irgendein Inventar-Item
+			var target: Item = null
+			for it in RunState.placed_items():
+				target = it
+				break
+			if target == null:
+				target = RunState.inventory[rng_i.randi() % RunState.inventory.size()]
+			RunState.apply_inscription(target, insc_id)
+			return "✦ %s wurde mit »%s« graviert." % [target.display_name, InscriptionDB.inscription_name(insc_id)]
+		"curse":
+			# curse:<dmg_delta>:<gold>  z.B.  curse:-0.10:60  -> -10% Run-Schaden, +60 Gold
+			var delta: float = float(parts[1])
+			var bonus_gold: int = int(parts[2]) if parts.size() > 2 else 0
+			RunState.run_damage_mult = max(0.5, RunState.run_damage_mult + delta)
+			RunState.gold += bonus_gold
+			return "✦ Ein Fluch senkt sich herab — Schaden %+.0f%% für den ganzen Run, dafür +%d Gold." % [delta * 100.0, bonus_gold]
+		"blessing":
+			# blessing:<dmg_delta>  z.B.  blessing:0.08  -> +8% Run-Schaden
+			var bdelta: float = float(parts[1])
+			RunState.run_damage_mult = min(2.0, RunState.run_damage_mult + bdelta)
+			return "✦ Ein Segen durchströmt deinen Turm — Schaden %+.0f%% für den ganzen Run." % (bdelta * 100.0)
+		"damage_then_blessing":
+			# damage_then_blessing:<hp>:<dmg_delta>  -> HP-Kosten, dann Run-Segen
+			var dhp: int = int(parts[1])
+			var ddelta: float = float(parts[2])
+			RunState.tower_hp = max(1, RunState.tower_hp - dhp)
+			RunState.run_damage_mult = min(2.0, RunState.run_damage_mult + ddelta)
+			return "✦ -%d HP — dafür +%.0f%% Schaden für den ganzen Run." % [dhp, ddelta * 100.0]
+		"gold_then_blessing":
+			# gold_then_blessing:<gold_delta>:<dmg_delta>  -> Gold-Kosten, dann Run-Segen
+			var gcost: int = int(parts[1])  # negativ = Kosten
+			var gdelta: float = float(parts[2])
+			if RunState.gold + gcost < 0:
+				return "Du hast nicht genug Gold — die Esse erlischt enttäuscht."
+			RunState.gold += gcost
+			RunState.run_damage_mult = min(2.0, RunState.run_damage_mult + gdelta)
+			return "✦ %d Gold — dafür +%.0f%% Schaden für den ganzen Run." % [gcost, gdelta * 100.0]
 	return "(unerwartetes Outcome: %s)" % outcome
+
+func _load_followup(path: String) -> void:
+	# Laedt ein Folge-Event (Verzweigung). Setzt Titel/Beschreibung/Choices neu.
+	var full_path: String = path if path.begins_with("res://") else "res://data/events/%s.tres" % path
+	if not ResourceLoader.exists(full_path):
+		_result_label.text = "[center](Verzweigung nicht gefunden)[/center]"
+		_result_label.visible = true
+		_continue_btn.visible = true
+		return
+	_event = load(full_path)
+	_title_label.text = _event.title
+	_description_label.text = "[center]%s[/center]" % _event.description
+	_build_choices()
+	_refresh_header()
 
 func _remove_item(item: Item) -> void:
 	# Aus Tower entfernen

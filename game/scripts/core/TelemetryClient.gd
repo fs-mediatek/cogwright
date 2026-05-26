@@ -57,6 +57,42 @@ func send_battle_log(payload: Dictionary) -> void:
 		return
 	_pending += 1
 
+func send_daily_score(payload: Dictionary) -> void:
+	# Postet ein Daily-Run-Ergebnis als kompakten Leaderboard-Eintrag.
+	# Der Discord-Channel sammelt so die Daily-Scores aller Tester.
+	if not is_active():
+		return
+	var url: String = _effective_url()
+	var alias: String = String(payload.get("alias", "")).strip_edges()
+	if alias == "":
+		alias = "Tester"
+	var won: bool = payload.get("victory", false)
+	var fields: Array = [
+		{"name": "Spieler", "value": alias, "inline": true},
+		{"name": "Score", "value": str(int(payload.get("score", 0))), "inline": true},
+		{"name": "Tag", "value": String(payload.get("date_key", "")), "inline": true},
+		{"name": "Charakter", "value": "%s · Heat %d" % [payload.get("character", "?"), int(payload.get("heat", 0))], "inline": true},
+		{"name": "Encounters", "value": str(int(payload.get("encounters_won", 0))), "inline": true},
+		{"name": "Ergebnis", "value": "Sieg" if won else "Niederlage", "inline": true},
+	]
+	var body: Dictionary = {
+		"username": "Cogwright Daily-Leaderboard",
+		"embeds": [{
+			"title": "🏁 Daily-Score · %s" % String(payload.get("date_key", "")),
+			"description": "`LEADERBOARD` Eintrag — automatisch aggregierbar.",
+			"color": 0xF1C40F if won else 0x95A5A6,
+			"fields": fields,
+			"timestamp": Time.get_datetime_string_from_system(false, true),
+		}],
+	}
+	var json: String = JSON.stringify(body)
+	var headers: PackedStringArray = PackedStringArray(["Content-Type: application/json"])
+	var err: int = _http.request(url, headers, HTTPClient.METHOD_POST, json)
+	if err != OK:
+		push_warning("[Telemetry] Daily-Score Request fehlgeschlagen: %d" % err)
+		return
+	_pending += 1
+
 func _on_response(_result: int, response_code: int, _headers: PackedStringArray, _body: PackedByteArray) -> void:
 	_pending = max(0, _pending - 1)
 	if response_code < 200 or response_code >= 300:

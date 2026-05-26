@@ -1,0 +1,23 @@
+[gd_resource type="Resource" script_class="Item" load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://data/Item.gd" id="1"]
+[ext_resource type="Script" path="res://data/effects/ChainEffect.gd" id="2"]
+[ext_resource type="Texture2D" path="res://assets/items/chain_igniter.png" id="3"]
+
+[sub_resource type="Resource" id="effect_chain"]
+script = ExtResource("2")
+hook = 1
+tag_filter = &""
+
+[resource]
+script = ExtResource("1")
+id = &"chain_igniter"
+display_name = "Ketten-Zünder"
+description = "Löst beim Auslösen sofort die Reaktiv-Trigger beider Etagen-Nachbarn aus — Kettenreaktion."
+flavor_text = "Ein Funke, und die ganze Reihe geht hoch."
+rarity = 3
+tags = Array[StringName]([&"reactive", &"mechanical"])
+floor_affinity = Array[StringName]([&"workshop"])
+cooldown_seconds = 5.0
+effects = Array[ExtResource("2")]([SubResource("effect_chain")])
+icon = ExtResource("3")

@@ -8,6 +8,11 @@ class_name EncounterConfig extends Resource
 # Parallel zu item_ids: floor_idx * 3 + slot_idx
 @export var slot_indices: Array[int] = []
 
+# Mini-Boss-Gimmick (optional): Sonderverhalten des Gegners im Kampf.
+# Gueltige Werte: "regenerator", "enrage", "reflect", "overclock". Leer = kein Gimmick.
+@export var gimmick: StringName = &""
+@export var gimmick_value: float = 0.0
+
 func build_tower() -> Tower:
 	var t := Tower.new()
 	t.name = display_name if display_name != "" else "Rival"

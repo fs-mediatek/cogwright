@@ -10,3 +10,5 @@ description = "Schwer gepanzert, schwer zu knacken. Greift mit Wucht an."
 base_hp = 235
 item_ids = Array[StringName]([&"piston_engine", &"flame_lance", &"chronometer", &"forge_hearth"])
 slot_indices = Array[int]([0, 7, 4, 1])
+gimmick = &"regenerator"
+gimmick_value = 6.0

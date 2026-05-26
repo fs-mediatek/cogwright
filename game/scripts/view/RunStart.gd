@@ -58,6 +58,7 @@ const HEAT_LEVELS_AVAILABLE: int = 5
 
 var _selected_length: int = MapGenerator.RunLength.NORMAL
 var _heat_buttons: Array[Button] = []
+var _mastermind_rolled: Array[String] = []   # aktuell gewuerfelte Zufalls-Start-Items des Mastermind
 
 func _ready() -> void:
 	MetaState.is_daily_run = false
@@ -294,8 +295,19 @@ func _update_heat_detail() -> void:
 	var h: int = MetaState.selected_heat
 	if h == 0:
 		_heat_detail.text = "Standard-Schwierigkeit · keine Gegner-Buffs, keine Bonus-Kristalle"
+		return
+	var twists: Array[String] = []
+	if h >= 2:
+		twists.append("Gegner-Turm startet mit Schild (%d)" % (20 + (h - 2) * 10))
+	if h >= 3:
+		twists.append("Gegner können kritisch treffen")
+	if h >= 4:
+		twists.append("deine Cooldowns +10% länger")
+	var base := "Heat %d  ·  Gegner +%d%% HP  ·  +%d Kristalle pro Boss-Sieg" % [h, h * 12, h * 5]
+	if twists.is_empty():
+		_heat_detail.text = base
 	else:
-		_heat_detail.text = "Heat %d  ·  Gegner +%d%% HP  ·  +%d Kristalle pro Boss-Sieg" % [h, h * 12, h * 5]
+		_heat_detail.text = base + "\n⚠ " + "  ·  ".join(twists)
 
 func _build_set_cards() -> void:
 	for child in _set_container.get_children():
@@ -357,12 +369,22 @@ func _make_set_card(set_def: Dictionary, is_unlocked: bool = true) -> PanelConta
 	desc_lbl.add_theme_color_override("font_color", Color(0.7, 0.66, 0.55))
 	vbox.add_child(desc_lbl)
 
+	# Item-IDs: bei Mastermind = Anker + gewuerfelte Zufalls-Items
+	var display_ids: Array = set_def["item_ids"]
+	if is_unlocked and set_def.get("random_pool", false):
+		if _mastermind_rolled.is_empty():
+			_roll_mastermind_items(set_def)
+		display_ids = []
+		for fid in set_def["item_ids"]:
+			display_ids.append(fid)
+		for rid in _mastermind_rolled:
+			display_ids.append(rid)
 	# Item-Icons + Namen
 	var item_row := HBoxContainer.new()
 	item_row.alignment = BoxContainer.ALIGNMENT_CENTER
 	item_row.add_theme_constant_override("separation", 8)
 	vbox.add_child(item_row)
-	for item_id in set_def["item_ids"]:
+	for item_id in display_ids:
 		var item: Item = load("res://data/items/%s.tres" % item_id)
 		var item_box := VBoxContainer.new()
 		item_box.alignment = BoxContainer.ALIGNMENT_CENTER
@@ -387,6 +409,19 @@ func _make_set_card(set_def: Dictionary, is_unlocked: bool = true) -> PanelConta
 	spacer.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	vbox.add_child(spacer)
 
+	# Mastermind: Reroll-Button fuer die Zufalls-Start-Items
+	if is_unlocked and set_def.get("random_pool", false):
+		var reroll_btn := Button.new()
+		reroll_btn.text = "🎲 Zufalls-Items neu würfeln"
+		reroll_btn.custom_minimum_size = Vector2(0, 32)
+		reroll_btn.add_theme_font_size_override("font_size", 12)
+		reroll_btn.pressed.connect(func():
+			AudioManager.ui("click")
+			_roll_mastermind_items(set_def)
+			_build_set_cards()
+		)
+		vbox.add_child(reroll_btn)
+
 	var choose_btn := Button.new()
 	if is_unlocked:
 		choose_btn.text = "Wählen"
@@ -401,6 +436,21 @@ func _make_set_card(set_def: Dictionary, is_unlocked: bool = true) -> PanelConta
 
 	return panel
 
+func _roll_mastermind_items(set_def: Dictionary) -> void:
+	# Wuerfelt die N Zufalls-Start-Items (gespeichert in _mastermind_rolled, vom Spieler rerollbar).
+	var count: int = int(set_def.get("random_count", 2))
+	var fixed_ids: Array = set_def["item_ids"]
+	var pool: Array[String] = _all_item_ids()
+	pool.shuffle()
+	_mastermind_rolled.clear()
+	for id in pool:
+		if _mastermind_rolled.size() >= count:
+			break
+		if id in fixed_ids:
+			continue
+		if ResourceLoader.exists("res://data/items/%s.tres" % id):
+			_mastermind_rolled.append(id)
+
 func _on_set_chosen(set_def: Dictionary) -> void:
 	AudioManager.ui("select")
 	AudioManager.sting("run_start", -4.0)
@@ -408,22 +458,14 @@ func _on_set_chosen(set_def: Dictionary) -> void:
 	# Fixe Items (Anker)
 	for item_id in set_def["item_ids"]:
 		starter_items.append(load("res://data/items/%s.tres" % item_id))
-	# Mastermind: zusaetzlich N zufaellige Items aus dem ganzen Pool
+	# Mastermind: die vom Spieler gesehenen/gewuerfelten Zufalls-Items uebernehmen
 	if set_def.get("random_pool", false):
-		var count: int = int(set_def.get("random_count", 2))
-		var fixed_ids: Array = set_def["item_ids"]
-		var pool: Array[String] = _all_item_ids()
-		pool.shuffle()
-		var added: int = 0
-		for id in pool:
-			if added >= count:
-				break
-			if id in fixed_ids:
-				continue
+		if _mastermind_rolled.is_empty():
+			_roll_mastermind_items(set_def)
+		for id in _mastermind_rolled:
 			var path: String = "res://data/items/%s.tres" % id
 			if ResourceLoader.exists(path):
 				starter_items.append(load(path))
-				added += 1
 	RunState.start_new_run(starter_items, -1, _selected_length, String(set_def["id"]))
 	get_tree().change_scene_to_file("res://scenes/MapView.tscn")
 

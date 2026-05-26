@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="EventConfig" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://data/EventConfig.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = &"graviermeister_pick"
+title = "Welche Inschrift?"
+description = "Der Meister legt drei Stichel bereit. „Sag mir, was dein Werkzeug werden soll — ich graviere es auf dein bestes platziertes Stück."
+choice_labels = Array[String](["Scharf — +25% Schaden (20 Gold)", "Flink — -20% Cooldown (20 Gold)", "Glühend — +75% Brand (15 Gold)"])
+choice_descriptions = Array[String]([
+	"Brennt eine Schärfungs-Inschrift ein.",
+	"Beschleunigt das Uhrwerk des Items.",
+	"Lässt die Glut tiefer fressen.",
+])
+choice_outcomes = Array[String](["inscribe:scharf:20", "inscribe:flink:20", "inscribe:gluehend:15"])

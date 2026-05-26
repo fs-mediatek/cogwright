@@ -13,6 +13,7 @@ const ALL_ITEM_IDS: Array[String] = [
 	"chronometer", "brass_horn", "siphon_pump", "iron_helm", "alchemist_flask",
 	"firebomb", "ice_diffuser", "steel_aegis", "phosphor_lobber", "aegis_pump",
 	"triple_cannon", "ammo_belt", "armor_plate", "grappling_hook", "stabilizer_brace", "grenade_launcher",
+	"gear_jammer", "target_painter", "chain_igniter",
 ]
 const HEAL_PERCENT: float = 0.50  # Werkstatt-Reparatur heilt 50% des Max-HP
 const SKIP_GOLD_REWARD: int = 12  # Anreiz, eine Belohnung zu überspringen
@@ -49,6 +50,9 @@ func _ready() -> void:
 	_build_inventory_strip()
 	_build_damage_breakdown()
 	_build_choices()
+	# Elite-Sieg: zusaetzlich eine Relikt-Auswahl anbieten (Overlay)
+	if _was_elite_encounter():
+		_open_relic_choice()
 	AudioManager.play_music("res://assets/audio/music/menu_factory.ogg", -14.0)
 	AudioManager.play_ambient("workshop")
 
@@ -229,6 +233,9 @@ func _build_choices() -> void:
 		item_count += 1
 	# Perk Pluendererglueck: +1 Option bei Elite-Kaempfen
 	if was_elite and MetaState.has_perk("pluendererglueck"):
+		item_count += 1
+	# Relikt Messing-Kleeblatt: +1 Option
+	if RunState.has_relic("messing_kleeblatt"):
 		item_count += 1
 	# Floor-Diversity: zähle, wie viele Items pro Etage der Spieler bereits hat
 	var floor_counts: Dictionary = {&"foundation": 0, &"workshop": 0, &"pinnacle": 0}
@@ -551,6 +558,87 @@ func _on_reroll() -> void:
 		_reroll_btn.disabled = true
 		_reroll_btn.text = "🎲 Bereits gewürfelt"
 	_build_choices()
+
+func _open_relic_choice() -> void:
+	# Overlay mit 3 zufaelligen, noch nicht besessenen Relikten (Elite-Belohnung).
+	var rng := RandomNumberGenerator.new()
+	rng.seed = RunState.run_seed + RunState.current_encounter_idx * 5701 + 99
+	var choices: Array[String] = RelicDB.random_unowned(RunState.active_relics, 3, rng)
+	if choices.is_empty():
+		return  # alle Relikte schon besessen
+	var overlay := PanelContainer.new()
+	overlay.name = "RelicOverlay"
+	overlay.set_anchors_preset(Control.PRESET_FULL_RECT)
+	overlay.mouse_filter = Control.MOUSE_FILTER_STOP
+	var sb := StyleBoxFlat.new()
+	sb.bg_color = Color(0.04, 0.03, 0.02, 0.96)
+	sb.set_content_margin_all(40)
+	overlay.add_theme_stylebox_override("panel", sb)
+	add_child(overlay)
+	var vbox := VBoxContainer.new()
+	vbox.add_theme_constant_override("separation", 16)
+	vbox.alignment = BoxContainer.ALIGNMENT_CENTER
+	overlay.add_child(vbox)
+	var title := Label.new()
+	title.text = "✦ Elite besiegt — wähle ein Relikt"
+	title.add_theme_font_size_override("font_size", 28)
+	title.add_theme_color_override("font_color", Color(0.95, 0.82, 0.45))
+	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	vbox.add_child(title)
+	var row := HFlowContainer.new()
+	row.add_theme_constant_override("h_separation", 16)
+	row.add_theme_constant_override("v_separation", 16)
+	row.alignment = FlowContainer.ALIGNMENT_CENTER
+	vbox.add_child(row)
+	for rid in choices:
+		row.add_child(_make_relic_card(rid, overlay))
+
+func _make_relic_card(relic_id: String, overlay: Node) -> PanelContainer:
+	var info: Dictionary = RelicDB.get_relic(relic_id)
+	var panel := PanelContainer.new()
+	panel.custom_minimum_size = Vector2(300, 220)
+	var rarity_color: Dictionary = {1: Color(0.55,0.45,0.28), 2: Color(0.45,0.62,0.85), 3: Color(0.80,0.55,0.85)}
+	var sb := StyleBoxFlat.new()
+	sb.bg_color = Color(0.13, 0.10, 0.07, 1.0)
+	sb.border_color = rarity_color.get(int(info.get("rarity", 1)), Color(0.55,0.45,0.28))
+	sb.set_border_width_all(2)
+	sb.set_corner_radius_all(8)
+	sb.set_content_margin_all(14)
+	panel.add_theme_stylebox_override("panel", sb)
+	panel.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
+	var vb := VBoxContainer.new()
+	vb.add_theme_constant_override("separation", 8)
+	panel.add_child(vb)
+	# Optionales Icon
+	var icon_path: String = "res://assets/ui/relics/relic_%s.png" % relic_id
+	if ResourceLoader.exists(icon_path):
+		var icon := TextureRect.new()
+		icon.texture = load(icon_path)
+		icon.custom_minimum_size = Vector2(64, 64)
+		icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+		icon.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+		vb.add_child(icon)
+	var name_lbl := Label.new()
+	name_lbl.text = String(info.get("name", relic_id))
+	name_lbl.add_theme_font_size_override("font_size", 17)
+	name_lbl.add_theme_color_override("font_color", Color(0.95, 0.82, 0.55))
+	name_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	vb.add_child(name_lbl)
+	var desc_lbl := Label.new()
+	desc_lbl.text = String(info.get("desc", ""))
+	desc_lbl.add_theme_font_size_override("font_size", 13)
+	desc_lbl.add_theme_color_override("font_color", Color(0.88, 0.82, 0.68))
+	desc_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	desc_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	vb.add_child(desc_lbl)
+	panel.gui_input.connect(func(event: InputEvent):
+		if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
+			AudioManager.ui("select")
+			RunState.add_relic(relic_id)
+			overlay.queue_free()
+	)
+	return panel
 
 func _on_skip() -> void:
 	if RunState.is_coop:

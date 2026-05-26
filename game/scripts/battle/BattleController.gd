@@ -32,6 +32,15 @@ var _log: Array[String] = []
 var _boss_phase2_triggered: bool = false
 # Perk Eisenhaut: einmaliges Schild-Trigger pro Battle bei HP<30%
 var _eisenhaut_triggered: bool = false
+# Relikt Uhrwerk-Herz: jeder 5. Player-Treffer ist garantierter Crit
+var _player_hit_counter: int = 0
+
+# Mini-Boss-Gimmick: Sonderverhalten des Gegner-Turms (von BattleView aus EncounterConfig gesetzt).
+# Werte: "regenerator", "enrage", "reflect", "overclock" — leer = kein Gimmick.
+var enemy_gimmick: StringName = &""
+var enemy_gimmick_value: float = 0.0
+var _gimmick_accumulator: float = 0.0   # sammelt Sekunden fuer intervallbasierte Gimmicks
+var _enrage_bonus_pct: float = 0.0      # eskalierender Gegner-Schadensbonus (Gimmick "enrage")
 
 signal boss_phase_changed(tower, phase: int)
 
@@ -41,6 +50,8 @@ var _tag_bonuses: Dictionary = {}
 # Status-Effekte pro Tower
 var _burn_stacks: Dictionary = {}  # tower -> Array of {dps, remaining, accumulator}
 var _slow_state: Dictionary = {}   # tower -> {percent, remaining}
+var _stun_state: Dictionary = {}   # tower -> remaining seconds (Item-CDs eingefroren)
+var _mark_state: Dictionary = {}   # tower -> {percent, remaining} (nimmt +% Schaden)
 var _shield_value: Dictionary = {} # tower -> {amount, remaining}
 
 # Player-spezifische Mods (kommen aus RunState)
@@ -80,12 +91,21 @@ func _apply_meta_start_buffs() -> void:
 	# Werkstatt-Upgrade "shield_start": Player startet Battle mit 15×Stufe Schild-Absorbtion
 	if player_tower == null:
 		return
-	var shield_lvl: int = MetaState.upgrade_level("shield_start")
-	if shield_lvl > 0:
-		var amount: int = shield_lvl * 15
-		_shield_value[player_tower] = {"amount": amount, "remaining": 9999.0}
-		log_line("META: %s startet mit %d Schild-Absorbtion (Schutzlauf Stufe %d)" % [player_tower.name, amount, shield_lvl])
-		status_changed.emit(player_tower, "shield", amount)
+	var shield_amount: int = MetaState.upgrade_level("shield_start") * 15
+	# Relikt Notschild-Generator: +25 Schild zu Kampfbeginn
+	if RunState.has_relic("notschild_generator"):
+		shield_amount += 25
+	if shield_amount > 0:
+		_shield_value[player_tower] = {"amount": shield_amount, "remaining": 9999.0}
+		log_line("META: %s startet mit %d Schild-Absorbtion" % [player_tower.name, shield_amount])
+		status_changed.emit(player_tower, "shield", shield_amount)
+	# Heat-Twist (Heat>=2): Gegner-Turm startet mit Schild
+	var enemy: Tower = defender if player_tower == attacker else attacker
+	if MetaState.selected_heat >= 2 and enemy != null:
+		var enemy_shield: int = 20 + (MetaState.selected_heat - 2) * 10
+		_shield_value[enemy] = {"amount": enemy_shield, "remaining": 9999.0}
+		log_line("HEAT %d: %s startet mit %d Schild" % [MetaState.selected_heat, enemy.name, enemy_shield])
+		status_changed.emit(enemy, "shield", enemy_shield)
 
 func _compute_set_bonuses() -> void:
 	# Pro Tower: Tag-Counts zählen, ab 3 gleichen Tags Set-Bonus aktiv.
@@ -136,12 +156,16 @@ func tick() -> void:
 	_advance_tag_bonuses(defender)
 	_advance_status(attacker)
 	_advance_status(defender)
+	_advance_gimmick()
 	_advance_tower(attacker, defender)
 	if outcome != Outcome.ONGOING:
 		return
 	_advance_tower(defender, attacker)
 
 func _advance_tower(tower: Tower, opponent: Tower) -> void:
+	# Stun: Tower-Cooldowns sind eingefroren, keine Trigger.
+	if _is_stunned(tower):
+		return
 	var slow_mod: float = _get_slow_modifier(tower)   # 0.0 = normal, 0.30 = 30% langsamer
 	for slot in tower.slots:
 		var floor_mod := _floor_cooldown_modifier(tower, slot.floor_idx)
@@ -152,6 +176,17 @@ func _advance_tower(tower: Tower, opponent: Tower) -> void:
 		# Perk Schnellfeuer: -15% CD auf [ranged]-Items (nur Player)
 		if tower == player_tower and slot.item != null and slot.item.tags.has(&"ranged") and MetaState.has_perk("schnellfeuer"):
 			effective_mod += 0.15
+		# Relikt Kühlrippen: -10% CD auf alle Player-Items
+		if tower == player_tower and slot.item != null and RunState.has_relic("kuehlrippen"):
+			effective_mod += 0.10
+		# Heat-Twist (Heat>=4): deine Item-Cooldowns +10% laenger
+		if tower == player_tower and MetaState.selected_heat >= 4:
+			effective_mod -= 0.10
+		# Inschrift Flink/Wuchtig: Cooldown-Faktor dieses Items in Speed-Mod umrechnen
+		if slot.item != null and String(slot.item.inscription) != "":
+			var cd_mult: float = InscriptionDB.cooldown_mult(slot.item.inscription)
+			if cd_mult > 0.0:
+				effective_mod += (1.0 / cd_mult - 1.0)
 		if slot.advance(TICK_DELTA, effective_mod):
 			_enqueue_self_trigger(tower, opponent, slot)
 	_drain_event_queue()
@@ -179,6 +214,48 @@ func _check_boss_phase_transition(tower: Tower) -> void:
 		_tag_bonuses[tower] = {}
 	_tag_bonuses[tower][&"mechanical"] = {"bonus": 10.0, "remaining": 9999.0}
 	boss_phase_changed.emit(tower, 2)
+
+func _enemy_tower() -> Tower:
+	# Der Nicht-Spieler-Turm. Fallback: defender (Player ist normalerweise attacker).
+	if player_tower == null:
+		return defender
+	return defender if player_tower == attacker else attacker
+
+func _advance_gimmick() -> void:
+	# Mini-Boss-Gimmicks: zeit-/intervallbasiertes Sonderverhalten des Gegners.
+	if String(enemy_gimmick) == "":
+		return
+	var enemy: Tower = _enemy_tower()
+	if enemy == null or not enemy.is_alive():
+		return
+	match String(enemy_gimmick):
+		"regenerator":
+			# Heilt enemy_gimmick_value HP/Sekunde (per Tick anteilig).
+			_gimmick_accumulator += TICK_DELTA
+			if _gimmick_accumulator >= 1.0:
+				_gimmick_accumulator -= 1.0
+				var heal: int = max(1, int(round(enemy_gimmick_value)))
+				enemy.hp = min(enemy.max_hp, enemy.hp + heal)
+				log_line("GIMMICK Regenerator: %s heilt +%d HP (hp %d)" % [enemy.name, heal, enemy.hp])
+				status_changed.emit(enemy, "heal", heal)
+		"enrage":
+			# Alle 5s dauerhaft +enemy_gimmick_value% Schaden (eskalierend).
+			_gimmick_accumulator += TICK_DELTA
+			if _gimmick_accumulator >= 5.0:
+				_gimmick_accumulator -= 5.0
+				_enrage_bonus_pct += enemy_gimmick_value
+				log_line("GIMMICK Berserk: %s jetzt +%.0f%% Schaden" % [enemy.name, _enrage_bonus_pct])
+		"overclock":
+			# Alle 5s -5% Cooldown auf alle Gegner-Slots (eskalierend, additiv).
+			_gimmick_accumulator += TICK_DELTA
+			if _gimmick_accumulator >= 5.0:
+				_gimmick_accumulator -= 5.0
+				for slot in enemy.slots:
+					if slot.item != null:
+						slot.temp_cd_modifier += 5.0
+						slot.temp_cd_remaining = 9999.0
+				log_line("GIMMICK Uebertaktung: %s feuert schneller" % enemy.name)
+		# "reflect" wirkt passiv in deal_damage_to_enemy, nicht hier.
 
 func _check_eisenhaut_perk(tower: Tower) -> void:
 	# Perk Eisenhaut: bei Player-HP<30% einmalig +30 Schild bis Battle-Ende
@@ -262,17 +339,22 @@ func _dispatch_effects(slot: ItemSlot, hook: int, payload: Dictionary, tower: To
 	_active_opponent = null
 
 func _cascade_neighbor_triggers(tower: Tower, opponent: Tower, source: ItemSlot) -> void:
+	# Relikt Zwillingszahnrad: Reactive-Trigger feuern ein zusaetzliches Mal (Player)
+	var repeat: int = 1
+	if tower == player_tower and RunState.has_relic("zwillingszahnrad"):
+		repeat = 2
 	for s in tower.slots_on_floor(source.floor_idx):
 		if s == source:
 			continue
 		if _has_hook(s.item, ItemEffect.TriggerHook.ON_NEIGHBOR_TRIGGER):
-			_event_queue.append({
-				"hook": ItemEffect.TriggerHook.ON_NEIGHBOR_TRIGGER,
-				"tower": tower,
-				"opponent": opponent,
-				"source_slot": s,
-				"payload": {"originator": source},
-			})
+			for _r in range(repeat):
+				_event_queue.append({
+					"hook": ItemEffect.TriggerHook.ON_NEIGHBOR_TRIGGER,
+					"tower": tower,
+					"opponent": opponent,
+					"source_slot": s,
+					"payload": {"originator": source},
+				})
 	# Perk Reaktiv-Kette: zusaetzlich diagonal-Nachbarn auf den Etagen darueber/darunter
 	if tower == player_tower and MetaState.has_perk("reaktiv_kette"):
 		for offset in [-1, 1]:
@@ -374,19 +456,49 @@ func deal_damage_to_enemy(amount: int, source_slot: ItemSlot) -> void:
 	var perk_dmg_bonus: float = 0.0
 	if _active_tower == player_tower and MetaState.has_perk("druckverwerter") and source_slot.item.tags.has(&"pressure"):
 		perk_dmg_bonus = 0.20
-	var multiplier: float = 1.0 + dmg_mod + (tag_bonus + set_bonus + char_bonus) / 100.0 + affinity_bonus + perk_dmg_bonus
-	var final_damage: int = max(0, int(round(float(amount) * multiplier)))
+	# Relikt-Schadensboni (nur Player)
+	var relic_dmg: float = 0.0
+	if _active_tower == player_tower:
+		if source_slot.floor_idx == 0 and RunState.has_relic("fundament_anker"):
+			relic_dmg += 0.25
+		if RunState.has_relic("schmiedesegen") and _is_tower_full(player_tower):
+			relic_dmg += 0.15
+	# Mark: markiertes Ziel nimmt zusaetzlichen Schaden
+	var mark_bonus: float = _get_mark_bonus(_active_opponent) / 100.0
+	# Gimmick Berserk: eskalierender Schadensbonus, nur fuer den Gegner-Turm
+	var enrage_bonus: float = (_enrage_bonus_pct / 100.0) if _active_tower != player_tower else 0.0
+	var multiplier: float = 1.0 + dmg_mod + (tag_bonus + set_bonus + char_bonus) / 100.0 + affinity_bonus + perk_dmg_bonus + relic_dmg + mark_bonus + enrage_bonus
+	# Inschrift: multiplikativer Schadensfaktor dieses Items (1.0 wenn keine)
+	var insc_dmg_mult: float = InscriptionDB.damage_mult(source_slot.item.inscription)
+	# Event-Konsequenz (Segen/Fluch): globaler Run-Schadensfaktor (nur Player)
+	var run_mult: float = RunState.run_damage_mult if _active_tower == player_tower else 1.0
+	var final_damage: int = max(0, int(round(float(amount) * multiplier * insc_dmg_mult * run_mult)))
 	# Crit-Roll — Werkstatt-Upgrade "crit_chance" addiert +3%-Punkte pro Stufe (nur Player)
 	var crit_chance: float = BASE_CRIT_CHANCE
 	var crit_mult: float = CRIT_MULTIPLIER
+	var force_crit: bool = false
+	# Inschrift Praezise: +Crit-Chance dieses Items
+	crit_chance += InscriptionDB.crit_bonus(source_slot.item.inscription)
 	if _active_tower == player_tower:
 		crit_chance += float(MetaState.upgrade_level("crit_chance")) * 0.03
 		# Perk Krit-Strom: +10% Chance, x2.5 Multiplikator
 		if MetaState.has_perk("kritstrom"):
 			crit_chance += 0.10
 			crit_mult = 2.5
+		# Relikt Resonanzkern: Crit-Multiplikator x2.5
+		if RunState.has_relic("resonanzkern"):
+			crit_mult = max(crit_mult, 2.5)
+		# Relikt Uhrwerk-Herz: jeder 5. Player-Treffer = garantierter Crit
+		if RunState.has_relic("uhrwerk_herz"):
+			_player_hit_counter += 1
+			if _player_hit_counter % 5 == 0:
+				force_crit = true
+	else:
+		# Heat-Twist (Heat>=3): auch Gegner koennen kritische Treffer landen
+		if MetaState.selected_heat >= 3:
+			crit_chance = BASE_CRIT_CHANCE
 	var is_crit: bool = false
-	if rng.randf() < crit_chance:
+	if force_crit or rng.randf() < crit_chance:
 		final_damage = int(round(float(final_damage) * crit_mult))
 		is_crit = true
 	# Shield: erst Schild reduzieren, dann HP
@@ -403,6 +515,11 @@ func deal_damage_to_enemy(amount: int, source_slot: ItemSlot) -> void:
 		_active_opponent.take_damage(dmg_to_hp)
 		_check_boss_phase_transition(_active_opponent)
 		_check_eisenhaut_perk(_active_opponent)
+		# Gimmick Dornen: Gegner reflektiert einen Teil des Schadens zurueck an den Player
+		if String(enemy_gimmick) == "reflect" and _active_tower == player_tower and _active_opponent == _enemy_tower():
+			var reflected: int = max(1, int(round(float(dmg_to_hp) * enemy_gimmick_value / 100.0)))
+			player_tower.take_damage(reflected)
+			log_line("  GIMMICK Dornen: %d Schaden reflektiert -> %s (hp %d)" % [reflected, player_tower.name, player_tower.hp])
 	if is_crit:
 		log_line("  CRIT: %s deals %d -> %s (hp now %d)" % [source_slot.item.display_name, final_damage, _active_opponent.name, _active_opponent.hp])
 		crit_dealt.emit(_active_opponent, _active_tower, source_slot, final_damage)
@@ -567,6 +684,13 @@ func _unique_tag_count(tower: Tower) -> int:
 				seen[t] = true
 	return seen.size()
 
+func _is_tower_full(tower: Tower) -> bool:
+	var filled: int = 0
+	for slot in tower.slots:
+		if slot.item != null:
+			filled += 1
+	return filled >= 9
+
 # --- Status-Effekt-API ---
 
 func apply_burn_to_enemy(dps: int, duration: float, _source_slot) -> void:
@@ -575,6 +699,12 @@ func apply_burn_to_enemy(dps: int, duration: float, _source_slot) -> void:
 	# Perk Brand-Stapel: 50% laengere Brand-Dauer
 	if _active_tower == player_tower and MetaState.has_perk("brand_stapel"):
 		duration *= 1.5
+	# Relikt Brandstifter-Kohle: +100% Brand-Schaden (Player)
+	if _active_tower == player_tower and RunState.has_relic("brandstifter_kohle"):
+		dps = int(round(float(dps) * 2.0))
+	# Inschrift Gluehend: +Brand-Schaden dieses Items
+	if _source_slot != null and _source_slot.item != null:
+		dps = int(round(float(dps) * InscriptionDB.burn_mult(_source_slot.item.inscription)))
 	var stacks: Array = _burn_stacks.get(_active_opponent, [])
 	stacks.append({"dps": dps, "remaining": duration, "accumulator": 0.0})
 	_burn_stacks[_active_opponent] = stacks
@@ -603,6 +733,39 @@ func apply_shield_to_self(amount: int, duration: float, _source_slot) -> void:
 	_shield_value[_active_tower] = current
 	log_line("  SHIELD: %s +%d Absorbtion (%.1fs)" % [_active_tower.name, amount, duration])
 	status_changed.emit(_active_tower, "shield", current["amount"])
+
+func apply_stun_to_enemy(duration: float, _source_slot) -> void:
+	if _active_opponent == null:
+		return
+	var current: float = float(_stun_state.get(_active_opponent, 0.0))
+	_stun_state[_active_opponent] = max(current, duration)
+	log_line("  STUN: %s eingefroren fuer %.1fs" % [_active_opponent.name, duration])
+	status_changed.emit(_active_opponent, "stun", int(round(duration * 10)))
+
+func apply_mark_to_enemy(percent: float, duration: float, _source_slot) -> void:
+	if _active_opponent == null:
+		return
+	var current: Dictionary = _mark_state.get(_active_opponent, {"percent": 0.0, "remaining": 0.0})
+	if percent >= float(current.get("percent", 0.0)):
+		current["percent"] = percent
+		current["remaining"] = duration
+		_mark_state[_active_opponent] = current
+		log_line("  MARK: %s markiert (+%.0f%% Schaden, %.1fs)" % [_active_opponent.name, percent, duration])
+		status_changed.emit(_active_opponent, "mark", int(percent))
+
+func chain_to_neighbors(source_slot: ItemSlot) -> void:
+	# Loest die Reactive-Trigger der Slot-Nachbarn auf derselben Etage aus.
+	if _active_tower == null:
+		return
+	_cascade_neighbor_triggers(_active_tower, _active_opponent, source_slot)
+
+func _is_stunned(tower: Tower) -> bool:
+	return float(_stun_state.get(tower, 0.0)) > 0.0
+
+func _get_mark_bonus(tower: Tower) -> float:
+	if not _mark_state.has(tower):
+		return 0.0
+	return float(_mark_state[tower].get("percent", 0.0))
 
 func _get_slow_modifier(tower: Tower) -> float:
 	if not _slow_state.has(tower):
@@ -634,6 +797,18 @@ func _advance_status(tower: Tower) -> void:
 		if float(_slow_state[tower]["remaining"]) <= 0.0:
 			_slow_state.erase(tower)
 			status_changed.emit(tower, "slow", 0)
+	# Stun
+	if _stun_state.has(tower):
+		_stun_state[tower] = float(_stun_state[tower]) - TICK_DELTA
+		if float(_stun_state[tower]) <= 0.0:
+			_stun_state.erase(tower)
+			status_changed.emit(tower, "stun", 0)
+	# Mark
+	if _mark_state.has(tower):
+		_mark_state[tower]["remaining"] = float(_mark_state[tower]["remaining"]) - TICK_DELTA
+		if float(_mark_state[tower]["remaining"]) <= 0.0:
+			_mark_state.erase(tower)
+			status_changed.emit(tower, "mark", 0)
 	# Shield
 	if _shield_value.has(tower):
 		_shield_value[tower]["remaining"] = float(_shield_value[tower]["remaining"]) - TICK_DELTA
@@ -671,6 +846,14 @@ func get_shield_amount(tower: Tower) -> int:
 	if not _shield_value.has(tower):
 		return 0
 	return int(_shield_value[tower]["amount"])
+
+func get_stun_remaining(tower: Tower) -> float:
+	return float(_stun_state.get(tower, 0.0))
+
+func get_mark_percent(tower: Tower) -> float:
+	if not _mark_state.has(tower):
+		return 0.0
+	return float(_mark_state[tower].get("percent", 0.0))
 
 # Aktive Fähigkeit: Charakter-Action triggern
 func trigger_active_ability(ability_id: String) -> bool:

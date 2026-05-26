@@ -35,6 +35,7 @@ func _ready() -> void:
 	_language_option.item_selected.connect(_on_language)
 	_telemetry_enabled_check.button_pressed = SettingsState.telemetry_enabled
 	_telemetry_enabled_check.toggled.connect(_on_telemetry_enabled)
+	_install_alias_row()
 	_update_check_btn.pressed.connect(_on_update_check)
 	_update_download_btn.pressed.connect(_on_update_download)
 	_back_btn.pressed.connect(_on_back)
@@ -44,6 +45,32 @@ func _ready() -> void:
 func _on_telemetry_enabled(pressed: bool) -> void:
 	SettingsState.set_telemetry_enabled(pressed)
 	AudioManager.ui("click")
+
+func _install_alias_row() -> void:
+	# Programmatisch eingefuegt (keine .tscn-Aenderung noetig): Name fuers Daily-Leaderboard.
+	var telemetry_row: Node = get_node_or_null("Center/VBox/TelemetryEnabledRow")
+	if telemetry_row == null:
+		return
+	var vbox: Node = telemetry_row.get_parent()
+	var row := HBoxContainer.new()
+	row.add_theme_constant_override("separation", 12)
+	var lbl := Label.new()
+	lbl.text = "Leaderboard-Name"
+	lbl.custom_minimum_size = Vector2(220, 0)
+	row.add_child(lbl)
+	var edit := LineEdit.new()
+	edit.text = SettingsState.player_alias
+	edit.placeholder_text = "z.B. Florian (für Daily-Leaderboard)"
+	edit.max_length = 24
+	edit.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	edit.text_changed.connect(_on_alias_changed)
+	row.add_child(edit)
+	vbox.add_child(row)
+	vbox.move_child(row, telemetry_row.get_index() + 1)
+
+func _on_alias_changed(new_text: String) -> void:
+	SettingsState.player_alias = new_text.strip_edges()
+	SettingsState.save_settings()
 
 func _on_update_check() -> void:
 	AudioManager.ui("click")

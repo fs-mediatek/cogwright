@@ -28,6 +28,7 @@ const TowerSlotPanelLib = preload("res://scripts/view/TowerSlotPanel.gd")
 const DETAIL_DEFAULT: String = "[i]Hover über ein Item, einen Slot oder einen Tag, um Details zu sehen.[/i]\n\n[b]Etagen-Bonus:[/b]\n• Spitze: +25% Speed\n• Werkstatt: +5% Damage\n• Fundament: +30% HP\n\n[b]Lieblings-Etage:[/b] [color=#ffcc40]+15% Schaden und schnellere Cooldowns[/color] auf der passenden Etage. Goldener Rahmen = optimal."
 
 var _selected_item: Item = null
+var _current_encounter: EncounterConfig = null
 
 func _ready() -> void:
 	if not RunState.is_run_active:
@@ -54,6 +55,7 @@ func _rebuild_all() -> void:
 	if encounter_path == "":
 		encounter_path = ENCOUNTER_PATHS[RunState.current_encounter_idx]
 	var encounter: EncounterConfig = load(encounter_path)
+	_current_encounter = encounter
 	_encounter_label.text = "Nächster Kampf: %s" % encounter.display_name
 	_hp_label.text = "Turm-HP: %d / %d" % [RunState.tower_hp, RunState.tower_max_hp]
 	_tower_title.text = "Werkstatt-Turm  vs  %s (%d HP)" % [encounter.display_name, encounter.base_hp]
@@ -62,6 +64,7 @@ func _rebuild_all() -> void:
 	_build_enemy_preview(encounter)
 	_refresh_werkbank()
 	_update_selected_label()
+	_show_default_detail()
 
 func _refresh_werkbank() -> void:
 	for c in _werkbank_row.get_children():
@@ -463,7 +466,98 @@ func _install_hero_background() -> void:
 func _show_default_detail() -> void:
 	if _detail_content == null:
 		return
-	_detail_content.text = DETAIL_DEFAULT
+	var text: String = _build_loadout_preview()
+	text += "\n\n" + DETAIL_DEFAULT
+	if not RunState.active_relics.is_empty():
+		text += "\n\n[b][color=#e0c070]Relikte:[/color][/b]"
+		for rid in RunState.active_relics:
+			var info: Dictionary = RelicDB.get_relic(rid)
+			text += "\n[color=#d8a04a]✦ %s[/color] — %s" % [String(info.get("name", rid)), String(info.get("desc", ""))]
+	_detail_content.text = text
+
+func _build_loadout_preview() -> String:
+	# Grobe Loadout-Vorschau: geschaetzter Dauer-DPS des aktuellen Turms,
+	# Gegner-HP und ungefaehre Zeit bis zum Sieg. Reine Planungshilfe, kein Live-Wert.
+	var est: Dictionary = _estimate_loadout()
+	var filled: int = int(est["filled"])
+	var dps: float = float(est["dps"])
+	var burst: float = float(est["burst"])
+	var lines: PackedStringArray = PackedStringArray()
+	lines.append("[b][color=#7fd0ff]⚙ Loadout-Vorschau[/color][/b]")
+	lines.append("[color=#aab8c0]Belegte Slots:[/color] %d / 9" % filled)
+	if filled == 0:
+		lines.append("[color=#888070]Platziere Items, um eine Schätzung zu sehen.[/color]")
+		return "\n".join(lines)
+	lines.append("[color=#aab8c0]Geschätzter DPS:[/color] [color=#ffcc60]~%d[/color]" % int(round(dps)))
+	lines.append("[color=#aab8c0]Burst pro Welle:[/color] ~%d" % int(round(burst)))
+	if _current_encounter != null:
+		var enemy_hp: int = _estimate_enemy_hp(_current_encounter)
+		lines.append("[color=#aab8c0]Gegner-HP:[/color] %d" % enemy_hp)
+		if dps > 0.5:
+			var ttk: float = float(enemy_hp) / dps
+			var ttk_color: String = "#8fcf6a" if ttk <= 25.0 else ("#e0c070" if ttk <= 45.0 else "#dd8055")
+			lines.append("[color=#aab8c0]Zeit bis Sieg:[/color] [color=%s]~%.0f s[/color]" % [ttk_color, ttk])
+		if String(_current_encounter.gimmick) == "regenerator":
+			lines.append("[color=#dd8055]⚠ Regenerator: Gegner heilt — kalkuliere mehr DPS ein.[/color]")
+		elif String(_current_encounter.gimmick) == "reflect":
+			lines.append("[color=#dd8055]⚠ Dornen: Schaden wird teils reflektiert.[/color]")
+	return "\n".join(lines)
+
+func _estimate_loadout() -> Dictionary:
+	var dps: float = 0.0
+	var burst: float = 0.0
+	var filled: int = 0
+	var passive: Dictionary = RunState.CHARACTER_PASSIVES.get(RunState.current_character_id, {})
+	var dtag: StringName = passive.get("damage_tag", &"")
+	var dbonus: float = float(passive.get("damage_bonus", 0.0))
+	for i in range(RunState.tower_layout.size()):
+		var item: Item = RunState.tower_layout[i]
+		if item == null:
+			continue
+		filled += 1
+		var floor_idx: int = i / 3
+		var item_mult: float = 1.0
+		if floor_idx >= 0 and floor_idx < RunState.floors.size():
+			var fc: FloorConfig = RunState.floors[floor_idx]
+			item_mult += fc.damage_modifier
+			if item.floor_affinity.has(fc.id):
+				item_mult += 0.15
+		if String(dtag) != "" and item.tags.has(dtag):
+			item_mult += dbonus
+		item_mult *= InscriptionDB.damage_mult(item.inscription)
+		var direct: int = 0
+		var react: int = 0
+		var burn: int = 0
+		for e in item.effects:
+			if e is DealDamageEffect:
+				if int(e.hook) == 2:
+					react += (e as DealDamageEffect).amount
+				else:
+					direct += (e as DealDamageEffect).amount
+			elif e is BurnEffect:
+				burn += (e as BurnEffect).damage_per_second
+		var cd: float = max(0.2, item.cooldown_seconds)
+		var insc_cd: float = InscriptionDB.cooldown_mult(item.inscription)
+		if insc_cd > 0.0:
+			cd *= insc_cd
+		if item.cooldown_seconds < 90.0:
+			dps += (float(direct) / cd) * item_mult
+			dps += float(burn) * item_mult
+			burst += float(direct) * item_mult
+		# Reaktive Items: grobe Annahme, dass sie ca. alle 2.5s mitfeuern
+		if react > 0:
+			dps += (float(react) / 2.5) * item_mult * 0.5
+			burst += float(react) * item_mult
+	dps *= RunState.run_damage_mult
+	burst *= RunState.run_damage_mult
+	return {"dps": dps, "burst": burst, "filled": filled}
+
+func _estimate_enemy_hp(encounter: EncounterConfig) -> int:
+	var hp_total: float = float(encounter.base_hp)
+	for fc in RunState.floors:
+		hp_total += float(encounter.base_hp) * fc.hp_modifier
+	hp_total *= (1.0 + 0.12 * float(MetaState.selected_heat))
+	return int(round(hp_total))
 
 func _show_item_detail(item: Item, floor_config: FloorConfig) -> void:
 	if _detail_content == null or item == null:

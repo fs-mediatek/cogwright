@@ -13,6 +13,7 @@ const ALL_ITEM_IDS: Array[String] = [
 	"chronometer", "brass_horn", "siphon_pump", "iron_helm", "alchemist_flask",
 	"firebomb", "ice_diffuser", "steel_aegis", "phosphor_lobber", "aegis_pump",
 	"triple_cannon", "ammo_belt", "armor_plate", "grappling_hook", "stabilizer_brace", "grenade_launcher",
+	"gear_jammer", "target_painter", "chain_igniter",
 ]
 
 const REROLL_COST: int = 5
@@ -29,6 +30,7 @@ const REROLL_COST: int = 5
 @onready var _werkbank_row: HBoxContainer = $Layout/WerkbankPanel/WerkbankVBox/WerkbankRow
 
 var _shop_items: Array[Dictionary] = []  # {id, price, sold}
+var _reroll_count: int = 0
 
 func _ready() -> void:
 	if not RunState.is_run_active:
@@ -50,7 +52,8 @@ func _ready() -> void:
 
 func _roll_shop() -> void:
 	var rng := RandomNumberGenerator.new()
-	rng.seed = RunState.run_seed + RunState.current_encounter_idx * 11119 + _shop_items.size() * 31
+	# Reroll-Zaehler statt _shop_items.size() (war nach 1. Reroll konstant -> identische Rolls)
+	rng.seed = RunState.run_seed + RunState.current_encounter_idx * 11119 + _reroll_count * 104729
 	_shop_items.clear()
 	# Smart-Pool wie ItemReward
 	var scored: Array[Dictionary] = []
@@ -471,6 +474,7 @@ func _apply_reroll() -> void:
 		return
 	AudioManager.ui("click")
 	RunState.gold -= cost
+	_reroll_count += 1
 	_roll_shop()
 	_refresh_header()
 	_build_grid()

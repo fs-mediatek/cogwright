@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="EventConfig" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://data/EventConfig.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = &"graviermeister"
+title = "Der Graviermeister"
+description = "In einer rußgeschwärzten Werkstatt beugt sich ein alter Meister über einen Gravierstichel. „Ich kann deinem Werkzeug eine Inschrift einbrennen — Macht hat ihren Preis. Oder interessiert dich eher, was in meiner Vitrine ruht?"
+choice_labels = Array[String](["Eine Inschrift wählen", "Seine Vitrine öffnen (-15 HP)", "Höflich gehen"])
+choice_descriptions = Array[String]([
+	"Du darfst die Art der Gravur selbst bestimmen (kostet Gold).",
+	"Ein Relikt aus seiner Sammlung — die Vitrine schnappt zu und zwickt.",
+	"Kein Risiko, keine Belohnung.",
+])
+choice_outcomes = Array[String](["branch:13b_graviermeister_pick", "relic:random:15", "noop"])

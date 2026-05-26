@@ -10,3 +10,5 @@ description = "Robuster Konstrukt mit unermuedlichem Hebelmechanismus."
 base_hp = 160
 item_ids = Array[StringName]([&"pressure_hammer", &"piston_engine", &"steam_kettle"])
 slot_indices = Array[int]([0, 3, 7])
+gimmick = &"overclock"
+gimmick_value = 1.0

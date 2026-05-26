@@ -10,3 +10,5 @@ description = "Improvisiert aus Maschinenteilen, ueberraschend behende."
 base_hp = 115
 item_ids = Array[StringName]([&"clockwork_bird", &"spark_spitter", &"gear_grinder"])
 slot_indices = Array[int]([7, 3, 0])
+gimmick = &"reflect"
+gimmick_value = 25.0

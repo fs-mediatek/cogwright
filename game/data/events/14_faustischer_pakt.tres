@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="EventConfig" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://data/EventConfig.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = &"faustischer_pakt"
+title = "Die Flüsternde Esse"
+description = "Eine uralte Esse glüht ohne Feuer. Eine Stimme aus den Kohlen raunt: „Ich schenke dir Macht — oder Gold. Doch alles hat seinen Preis, und mancher Preis dauert."
+choice_labels = Array[String](["Macht annehmen", "Gold annehmen", "Die Esse versiegeln"])
+choice_descriptions = Array[String]([
+	"Ein dauerhafter Segen — aber er fordert vorab Tribut.",
+	"Sofortiges Gold — doch die Glut verlangt einen Fluch.",
+	"Sicher ist sicher.",
+])
+choice_outcomes = Array[String](["branch:14b_pakt_macht", "branch:14c_pakt_gold", "noop"])

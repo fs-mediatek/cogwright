@@ -61,6 +61,20 @@ var current_run_length: int = 1   # MapGenerator.RunLength: 0=SHORT, 1=NORMAL, 2
 var total_encounters: int = 5   # vom Run-Length abgeleitet, beim Start gesetzt
 var current_character_id: String = "fire"   # für Passive-Effekte
 var active_ability_used: bool = false   # 1x pro Battle nutzbar; reset bei advance_encounter
+var active_relics: Array[String] = []   # gefundene Relikte (gelten den ganzen Run)
+var run_damage_mult: float = 1.0   # Event-Konsequenzen (Segen >1.0 / Fluch <1.0), gilt den ganzen Run
+
+func has_relic(relic_id: String) -> bool:
+	return relic_id in active_relics
+
+func add_relic(relic_id: String) -> void:
+	if relic_id in active_relics:
+		return
+	active_relics.append(relic_id)
+	# Sofort wirkende Relikte (HP-Boni) direkt anwenden
+	if relic_id == "druckspeicher":
+		tower_max_hp += 60
+		tower_hp += 60
 
 # Co-Op-Felder (Phase 1b+)
 var is_coop: bool = false
@@ -79,6 +93,8 @@ func _ready() -> void:
 func start_new_run(starter_items: Array[Item], seed_value: int = -1, length: int = MapGenerator.RunLength.NORMAL, character_id: String = "fire") -> void:
 	current_character_id = character_id
 	active_ability_used = false
+	active_relics.clear()
+	run_damage_mult = 1.0
 	inventory.clear()
 	# Resources werden von load() gecached — gleiches Item zweimal im Set wäre
 	# dieselbe Reference. Wir duplizieren, damit jede Inventar-Position eine
@@ -154,14 +170,19 @@ func save_run() -> bool:
 	cfg.set_value("run", "pending_encounter_path", pending_encounter_path)
 	# Inventar via resource_path-IDs (auf .tres-Dateinamen reduziert)
 	var inv_ids: Array[String] = []
+	var inv_inscriptions: Array[String] = []
 	for it in inventory:
 		inv_ids.append(_item_id_from_resource(it))
+		inv_inscriptions.append(String(it.inscription))
 	cfg.set_value("run", "inventory_ids", inv_ids)
+	cfg.set_value("run", "inventory_inscriptions", inv_inscriptions)
 	# Tower-Layout: pro Slot der Inventar-Index (oder -1 wenn leer)
 	var layout_idx: Array[int] = []
 	for s in tower_layout:
 		layout_idx.append(inventory.find(s) if s != null else -1)
 	cfg.set_value("run", "tower_layout_indices", layout_idx)
+	cfg.set_value("run", "active_relics", active_relics)
+	cfg.set_value("run", "run_damage_mult", run_damage_mult)
 	# Map: aktueller Node + besuchte Knoten
 	cfg.set_value("run", "current_node_id", current_map.current_node_id)
 	var completed_ids: Array[int] = []
@@ -187,13 +208,16 @@ func load_run() -> bool:
 		return false
 	# Inventar rekonstruieren
 	var inv_ids: Array = cfg.get_value("run", "inventory_ids", [])
+	var inv_inscriptions: Array = cfg.get_value("run", "inventory_inscriptions", [])
 	inventory.clear()
-	for raw in inv_ids:
-		var item_id: String = String(raw)
+	for i in range(inv_ids.size()):
+		var item_id: String = String(inv_ids[i])
 		var path: String = "res://data/items/%s.tres" % item_id
 		if ResourceLoader.exists(path):
-			var it: Item = load(path)
-			inventory.append(it.duplicate(true))
+			var it: Item = (load(path) as Item).duplicate(true)
+			if i < inv_inscriptions.size():
+				it.inscription = StringName(String(inv_inscriptions[i]))
+			inventory.append(it)
 	# Floors immer aus Configs
 	floors = _load_floors()
 	tower_max_hp = int(cfg.get_value("run", "tower_max_hp", _compute_max_hp(BASE_HP, floors)))
@@ -206,6 +230,10 @@ func load_run() -> bool:
 	current_run_length = int(cfg.get_value("run", "length", 1))
 	total_encounters = int(cfg.get_value("run", "total_encounters", 5))
 	pending_encounter_path = String(cfg.get_value("run", "pending_encounter_path", ""))
+	active_relics.clear()
+	for r in cfg.get_value("run", "active_relics", []):
+		active_relics.append(String(r))
+	run_damage_mult = float(cfg.get_value("run", "run_damage_mult", 1.0))
 	# Layout
 	tower_layout.clear()
 	tower_layout.resize(9)
@@ -319,6 +347,11 @@ func add_to_inventory(item: Item) -> void:
 	# Duplizieren analog zu start_new_run — vermeidet Resource-Cache-Aliasing,
 	# falls der Spieler später dasselbe Item nochmal als Belohnung wählt.
 	inventory.append(item.duplicate(true))
+
+func apply_inscription(item: Item, inscription_id: String) -> void:
+	# Setzt eine Inschrift auf eine konkrete Inventar-Instanz (Item.duplicate-Instanz).
+	if item != null:
+		item.inscription = StringName(inscription_id)
 
 # --- Sell / Upgrade ---
 

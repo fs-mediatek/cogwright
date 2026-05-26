@@ -18,6 +18,7 @@ var screen_shake_enabled: bool = true   # Screen-Shake bei schweren Treffern
 var telemetry_enabled: bool = true   # Battle-Logs senden (Default an — User kann opt-out)
 var telemetry_webhook_url: String = ""   # Optionaler Override; leer = Built-in nutzen
 var telemetry_only_on_loss: bool = false   # nur bei Niederlagen senden
+var player_alias: String = ""   # optionaler Name fuer das Daily-Leaderboard (leer = "Tester")
 
 func _ready() -> void:
 	_ensure_audio_buses()
@@ -51,6 +52,7 @@ func load_settings() -> void:
 	telemetry_enabled = cfg.get_value("telemetry", "enabled", true)
 	telemetry_webhook_url = cfg.get_value("telemetry", "webhook_url", "")
 	telemetry_only_on_loss = cfg.get_value("telemetry", "only_on_loss", false)
+	player_alias = cfg.get_value("telemetry", "player_alias", "")
 
 func save_settings() -> void:
 	var cfg := ConfigFile.new()
@@ -65,6 +67,7 @@ func save_settings() -> void:
 	cfg.set_value("telemetry", "enabled", telemetry_enabled)
 	cfg.set_value("telemetry", "webhook_url", telemetry_webhook_url)
 	cfg.set_value("telemetry", "only_on_loss", telemetry_only_on_loss)
+	cfg.set_value("telemetry", "player_alias", player_alias)
 	cfg.save(SAVE_PATH)
 
 func apply_all() -> void:

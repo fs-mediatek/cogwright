@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="EventConfig" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://data/EventConfig.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = &"pakt_macht"
+title = "Der Tribut der Macht"
+description = "„Macht für den ganzen Run", flüstert die Esse. „Doch erst musst du etwas opfern. Wähle, was du gibst."
+choice_labels = Array[String](["35 HP geben → +8% Schaden (Run)", "50 Gold geben → +12% Schaden (Run)", "Doch nicht"])
+choice_descriptions = Array[String]([
+	"Dauerhafter Schadens-Segen, bezahlt mit Lebenskraft.",
+	"Stärkerer Segen, bezahlt mit Gold (falls vorhanden).",
+	"Zurücktreten.",
+])
+choice_outcomes = Array[String](["damage_then_blessing:35:0.08", "gold_then_blessing:-50:0.12", "noop"])

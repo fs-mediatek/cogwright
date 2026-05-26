@@ -94,6 +94,8 @@ func _refresh_status_overlay() -> void:
 	var burn: int = _battle.get_burn_total(tower)
 	var slow: float = _battle.get_slow_percent(tower)
 	var shield: int = _battle.get_shield_amount(tower)
+	var stun: float = _battle.get_stun_remaining(tower)
+	var mark: float = _battle.get_mark_percent(tower)
 	var parts: Array[String] = []
 	if shield > 0:
 		parts.append("🛡 %d" % shield)
@@ -101,6 +103,10 @@ func _refresh_status_overlay() -> void:
 		parts.append("🔥 %d/s" % burn)
 	if slow > 0:
 		parts.append("❄ -%.0f%%" % slow)
+	if stun > 0.0:
+		parts.append("⏹ %.1fs" % stun)
+	if mark > 0.0:
+		parts.append("◎ +%.0f%%" % mark)
 	if parts.size() > 0:
 		_hp_label.text = "%d / %d   %s" % [tower.hp, tower.max_hp, " ".join(parts)]
 

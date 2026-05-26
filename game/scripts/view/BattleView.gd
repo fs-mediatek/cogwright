@@ -10,6 +10,14 @@ const ENCOUNTER_PATHS: Array[String] = [
 ]
 const POST_BATTLE_DELAY: float = 1.5
 
+# Mini-Boss-Gimmick → Anzeige-Text fuer die Status-Zeile.
+const GIMMICK_LABELS: Dictionary = {
+	"regenerator": "⚙ Regenerator — repariert sich selbst",
+	"enrage": "⚙ Berserk — wird mit der Zeit staerker",
+	"reflect": "⚙ Dornen — reflektiert Schaden",
+	"overclock": "⚙ Uebertaktung — feuert immer schneller",
+}
+
 const DAMAGE_FLOAT_COLOR: Color = Color(1.0, 0.55, 0.35)
 const CRIT_FLOAT_COLOR: Color = Color(1.0, 0.92, 0.35)
 const HEAL_FLOAT_COLOR: Color = Color(0.45, 0.95, 0.50)
@@ -109,6 +117,8 @@ func _start_battle() -> void:
 	_battle = BattleController.new(player, rival, battle_seed)
 	_battle.player_tower = player
 	_battle.player_character_id = RunState.current_character_id
+	_battle.enemy_gimmick = encounter.gimmick
+	_battle.enemy_gimmick_value = encounter.gimmick_value
 	_battle.damage_dealt.connect(_on_damage_dealt)
 	_battle.tower_healed.connect(_on_tower_healed)
 	_battle.slot_triggered.connect(_on_slot_triggered)
@@ -125,6 +135,8 @@ func _start_battle() -> void:
 	_paused = false
 	_battle_done = false
 	_status_label.text = "Encounter %d/%d — %s" % [RunState.current_encounter_idx + 1, RunState.total_encounters, encounter.display_name]
+	if String(encounter.gimmick) != "" and GIMMICK_LABELS.has(String(encounter.gimmick)):
+		_status_label.text += "   ·   " + GIMMICK_LABELS[String(encounter.gimmick)]
 	_pause_button.text = "Pause"
 	# Vorhandene Floating Numbers + Projectiles aufräumen
 	for c in _floats_layer.get_children():
@@ -315,6 +327,7 @@ func _do_battle_end_transition() -> void:
 		if was_boss:
 			if MetaState.is_daily_run:
 				MetaState.record_daily_score(RunState.encounters_won, true)
+				_post_daily_leaderboard(true)
 			RunState.end_run(true)
 			get_tree().change_scene_to_file("res://scenes/RunComplete.tscn")
 		else:
@@ -322,6 +335,7 @@ func _do_battle_end_transition() -> void:
 	else:
 		if MetaState.is_daily_run:
 			MetaState.record_daily_score(RunState.encounters_won, false)
+			_post_daily_leaderboard(false)
 		RunState.end_run(false)
 		get_tree().change_scene_to_file("res://scenes/GameOver.tscn")
 
@@ -363,6 +377,22 @@ func _pick_and_play_battle_music() -> void:
 func _exit_tree() -> void:
 	# Sounds aus diesem Battle stoppen, bevor die nächste Szene anfängt
 	AudioManager.stop_all_sfx()
+
+func _post_daily_leaderboard(victory: bool) -> void:
+	if not TelemetryClient.is_active():
+		return
+	var char_id: String = RunState.current_character_id
+	var char_name: String = String(MetaState.ALL_CHARACTERS.get(char_id, {"name": char_id})["name"])
+	var score: int = RunState.encounters_won * 10 + MetaState.selected_heat * 5 + (100 if victory else 0)
+	TelemetryClient.send_daily_score({
+		"alias": SettingsState.player_alias,
+		"score": score,
+		"date_key": MetaState.current_daily_key(),
+		"character": char_name,
+		"heat": MetaState.selected_heat,
+		"encounters_won": RunState.encounters_won,
+		"victory": victory,
+	})
 
 func _send_telemetry_if_enabled() -> void:
 	if not TelemetryClient.is_active():

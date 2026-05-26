@@ -28,6 +28,8 @@ AchievementPopup="*res://scripts/view/AchievementPopup.gd"
 AppVersion="*res://scripts/core/AppVersion.gd"
 UpdateChecker="*res://scripts/core/UpdateChecker.gd"
 TelemetryClient="*res://scripts/core/TelemetryClient.gd"
+RelicDB="*res://scripts/core/RelicDB.gd"
+InscriptionDB="*res://scripts/core/InscriptionDB.gd"
 
 [display]
 

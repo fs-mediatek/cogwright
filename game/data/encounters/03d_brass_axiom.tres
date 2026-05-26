@@ -10,3 +10,5 @@ description = "Praezise Ingenieurskonstruktion mit messerscharfer Mechanik."
 base_hp = 185
 item_ids = Array[StringName]([&"flintlock_pistol", &"gear_sync", &"piston_engine"])
 slot_indices = Array[int]([6, 4, 1])
+gimmick = &"enrage"
+gimmick_value = 12.0

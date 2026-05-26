@@ -1,0 +1,24 @@
+[gd_resource type="Resource" script_class="Item" load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://data/Item.gd" id="1"]
+[ext_resource type="Script" path="res://data/effects/StunEffect.gd" id="2"]
+[ext_resource type="Texture2D" path="res://assets/items/gear_jammer.png" id="3"]
+
+[sub_resource type="Resource" id="effect_stun"]
+script = ExtResource("2")
+hook = 1
+tag_filter = &""
+duration_seconds = 1.5
+
+[resource]
+script = ExtResource("1")
+id = &"gear_jammer"
+display_name = "Zahnrad-Klemme"
+description = "Verkeilt die Mechanik des Gegners: friert dessen Item-Cooldowns für 1.5s ein."
+flavor_text = "Ein Bolzen ins falsche Zahnrad, und die ganze Maschine steht."
+rarity = 2
+tags = Array[StringName]([&"mechanical", &"sharp"])
+floor_affinity = Array[StringName]([&"workshop"])
+cooldown_seconds = 7.0
+effects = Array[ExtResource("2")]([SubResource("effect_stun")])
+icon = ExtResource("3")

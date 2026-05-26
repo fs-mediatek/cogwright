@@ -13,6 +13,7 @@ const ALL_ITEM_IDS: Array[String] = [
 	"chronometer", "brass_horn", "siphon_pump", "iron_helm", "alchemist_flask",
 	"firebomb", "ice_diffuser", "steel_aegis", "phosphor_lobber", "aegis_pump",
 	"triple_cannon", "ammo_belt", "armor_plate", "grappling_hook", "stabilizer_brace", "grenade_launcher",
+	"gear_jammer", "target_painter", "chain_igniter",
 ]
 
 @onready var _grid: HFlowContainer = $Layout/Scroll/GridContainer

@@ -17,6 +17,9 @@ enum Rarity { COMMON, UNCOMMON, RARE, LEGENDARY }
 
 @export var icon: Texture2D
 
+# Inschrift (Item-Veredelung): leer = keine. Per Event auf der Instanz gesetzt.
+@export var inscription: StringName = &""
+
 const _RARITY_LABEL: Dictionary = {
 	0: "Gewöhnlich",
 	1: "Ungewöhnlich",
@@ -41,6 +44,8 @@ func tooltip_text() -> String:
 		lines.append("  ".join(tag_strs))
 	lines.append("")
 	lines.append("Cooldown: %.1fs" % cooldown_seconds)
+	if String(inscription) != "":
+		lines.append("✶ Inschrift: %s — %s" % [InscriptionDB.inscription_name(String(inscription)), InscriptionDB.inscription_desc(String(inscription))])
 	if floor_affinity.size() > 0:
 		var floor_strs: PackedStringArray = PackedStringArray()
 		for f in floor_affinity:
@@ -89,6 +94,13 @@ func _effect_line(e: ItemEffect) -> String:
 		var f: BoostFloorEffect = e as BoostFloorEffect
 		var dir_label: String = "Etage darüber" if f.floor_offset > 0 else "Etage darunter"
 		body = "%s CD -%.0f%% für %.1fs" % [dir_label, f.cooldown_reduction_percent, f.duration_seconds]
+	elif e is StunEffect:
+		body = "Stun: Gegner-CDs %.1fs eingefroren" % (e as StunEffect).duration_seconds
+	elif e is MarkEffect:
+		var mk: MarkEffect = e as MarkEffect
+		body = "Markiert: Gegner +%.0f%% Schaden für %.1fs" % [mk.bonus_percent, mk.duration_seconds]
+	elif e is ChainEffect:
+		body = "Kettenreaktion: löst beide Nachbarn aus"
 	if body == "":
 		return ""
 	return hook_tag + body
@@ -105,6 +117,7 @@ func primary_effect_label() -> String:
 	var shield_amt: int = -1
 	var slow_pct: float = -1.0
 	var tag_pct: float = -1.0
+	var parts_special: PackedStringArray = PackedStringArray()
 	for e in effects:
 		if e is DealDamageEffect:
 			if int(e.hook) == 2:
@@ -121,6 +134,12 @@ func primary_effect_label() -> String:
 			slow_pct = (e as SlowEffect).slow_percent
 		elif e is TagBonusEffect:
 			tag_pct = (e as TagBonusEffect).bonus_damage_percent
+		elif e is StunEffect:
+			parts_special.append("⏹ Stun")
+		elif e is MarkEffect:
+			parts_special.append("◎ +%.0f%%" % (e as MarkEffect).bonus_percent)
+		elif e is ChainEffect:
+			parts_special.append("⛓ Kette")
 	var parts: PackedStringArray = PackedStringArray()
 	if dmg_self >= 0 and dmg_react >= 0:
 		parts.append("⚔ %d / %d" % [dmg_self, dmg_react])
@@ -138,4 +157,8 @@ func primary_effect_label() -> String:
 		parts.append("❤ +%d" % heal_amt)
 	if tag_pct >= 0 and parts.is_empty():
 		parts.append("✦ +%.0f%%" % tag_pct)
+	for sp in parts_special:
+		parts.append(sp)
+	if String(inscription) != "":
+		parts.append("✶ " + InscriptionDB.inscription_name(String(inscription)))
 	return "  ".join(parts)
