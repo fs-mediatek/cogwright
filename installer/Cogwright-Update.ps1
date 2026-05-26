@@ -74,6 +74,10 @@ function Get-FileWithProgress {
 # Progress-Bar von Invoke-WebRequest drosselt PS5.1 stark -> aus.
 $ProgressPreference = 'SilentlyContinue'
 
+# PS5.1 nutzt per Default TLS 1.0/1.1 - GitHub verlangt TLS 1.2, sonst
+# "Die zugrunde liegende Verbindung wurde geschlossen". Explizit aktivieren.
+[Net.ServicePointManager]::SecurityProtocol = [Net.ServicePointManager]::SecurityProtocol -bor [Net.SecurityProtocolType]::Tls12
+
 $Host.UI.RawUI.WindowTitle = "Cogwright Update"
 Clear-Host
 Write-Banner "COGWRIGHT UPDATER"
