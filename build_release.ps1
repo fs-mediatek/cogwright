@@ -122,10 +122,43 @@ $manifest = @{
 $manifest | Out-File -FilePath $manifest_path -Encoding UTF8
 Write-Host "Manifest geschrieben: $manifest_path" -ForegroundColor Green
 
+# --- Installer-Build (Inno Setup) ---
+$iscc = $null
+$pf_x86 = [Environment]::GetEnvironmentVariable("ProgramFiles(x86)")
+$pf     = [Environment]::GetEnvironmentVariable("ProgramFiles")
+$lad    = [Environment]::GetEnvironmentVariable("LOCALAPPDATA")
+$iscc_candidates = @(
+    "$lad\Programs\Inno Setup 6\ISCC.exe",
+    "$pf_x86\Inno Setup 6\ISCC.exe",
+    "$pf\Inno Setup 6\ISCC.exe"
+)
+foreach ($p in $iscc_candidates) {
+    if (Test-Path $p) { $iscc = $p; break }
+}
+
+$installer_path = ""
+if ($iscc) {
+    Write-Host "Baue Installer (Inno Setup)..." -ForegroundColor Cyan
+    $iss = "$project_root\installer\cogwright_setup.iss"
+    & $iscc /Q "/DAppVersion=$version" $iss 2>&1 |
+        Where-Object { $_ -match "Error|fatal|Compiled" } | Select-Object -First 5
+    $installer_path = "$release_dir\Cogwright-Setup-$version.exe"
+    if (Test-Path $installer_path) {
+        $installer_mb = [math]::Round((Get-Item $installer_path).Length / 1MB, 1)
+        Write-Host "Installer erstellt: Cogwright-Setup-$version.exe ($installer_mb MB)" -ForegroundColor Green
+    } else {
+        Write-Warning "Installer-Build fehlgeschlagen - ZIP ist trotzdem da."
+        $installer_path = ""
+    }
+} else {
+    Write-Warning "Inno Setup nicht gefunden - Installer wird nicht gebaut. Install: winget install JRSoftware.InnoSetup"
+}
+
 Write-Host ""
 Write-Host "FERTIG. Output:" -ForegroundColor Cyan
 Write-Host "  $build_dir\Cogwright.exe"
 Write-Host "  $zip_path"
 Write-Host "  $manifest_path"
+if ($installer_path) { Write-Host "  $installer_path" }
 Write-Host ""
-Write-Host "Next steps: ZIP + manifest.json hochladen (itch.io / GitHub Releases / eigener Webspace)."
+Write-Host "Next steps: ZIP + Installer + manifest.json hochladen (GitHub Releases)."
