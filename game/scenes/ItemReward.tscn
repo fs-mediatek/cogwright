@@ -92,10 +92,11 @@ theme_override_colors/font_color = Color(0.95, 0.78, 0.35, 1)
 layout_mode = 2
 theme_override_constants/separation = 2
 
-[node name="ItemsContainer" type="HBoxContainer" parent="Layout"]
+[node name="ItemsContainer" type="HFlowContainer" parent="Layout"]
 layout_mode = 2
 size_flags_vertical = 3
-theme_override_constants/separation = 20
+theme_override_constants/h_separation = 20
+theme_override_constants/v_separation = 20
 alignment = 1
 
 [node name="Footer" type="HBoxContainer" parent="Layout"]

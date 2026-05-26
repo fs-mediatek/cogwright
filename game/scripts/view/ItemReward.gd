@@ -286,8 +286,10 @@ func _was_elite_encounter() -> bool:
 	return cn != null and cn.type == MapNode.NodeType.ELITE
 
 func _make_reward_card(item: Item) -> PanelContainer:
+	# 300 statt 360 — bei Gluecksrad/Pluendererglueck-Perks bis zu 5 Karten gleichzeitig.
+	# HFlowContainer (Parent) bricht automatisch um, falls Breite ueberlaufen wuerde.
 	var panel := PanelContainer.new()
-	panel.custom_minimum_size = Vector2(360, 420)
+	panel.custom_minimum_size = Vector2(300, 420)
 	panel.tooltip_text = item.tooltip_text()
 	var sb := StyleBoxFlat.new()
 	sb.bg_color = Color(0.15, 0.13, 0.10, 1.0)
