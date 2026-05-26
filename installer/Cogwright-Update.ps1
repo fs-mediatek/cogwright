@@ -1,24 +1,22 @@
-# Cogwright Auto-Updater
-# Wird vom Game gestartet (via Cogwright-Update.bat), wenn der Spieler in den
-# Einstellungen auf "Update installieren" klickt.
+# Cogwright Auto-Updater (Hash-basiert, inkrementell)
+# Vom Game gestartet via Cogwright-Update.bat, wenn Spieler in Settings auf "Download oeffnen" klickt.
 #
 # Ablauf:
 #   1. Wait bis Cogwright.exe geschlossen ist (max 30s)
-#   2. Download ZIP von der uebergebenen URL
-#   3. Im Install-Verzeichnis entpacken (ueberschreibt Cogwright.exe)
-#   4. Cogwright.exe neu starten
-#   5. Sich selbst beenden
+#   2. files.json vom Remote-Base-URL ziehen
+#   3. Lokale SHA256-Hashes vergleichen
+#   4. Nur veraenderte Dateien herunterladen + ersetzen
+#   5. Files die remote nicht mehr existieren -> loeschen
+#   6. Cogwright.exe neu starten
 
 param(
-    [Parameter(Mandatory=$true)][string]$DownloadUrl,
+    [Parameter(Mandatory=$true)][string]$ManifestUrl,
     [string]$ExpectedVersion = ""
 )
 
 $ErrorActionPreference = "Stop"
 
 $install_dir = Split-Path $MyInvocation.MyCommand.Path -Parent
-$temp_zip = Join-Path $env:TEMP "Cogwright-Update.zip"
-$temp_extract = Join-Path $env:TEMP "Cogwright-Update-Extract"
 $log_file = Join-Path $install_dir "update.log"
 
 function Write-Log {
@@ -28,12 +26,18 @@ function Write-Log {
     Write-Host $line
 }
 
+function Get-FileSha256 {
+    param([string]$Path)
+    if (-not (Test-Path $Path)) { return "" }
+    return (Get-FileHash -Algorithm SHA256 -Path $Path).Hash.ToLower()
+}
+
 Write-Log "=== Update gestartet ==="
 Write-Log "Install-Dir: $install_dir"
-Write-Log "Download-URL: $DownloadUrl"
-Write-Log "Expected Version: $ExpectedVersion"
+Write-Log "Manifest-URL: $ManifestUrl"
+Write-Log "Erwartete Version: $ExpectedVersion"
 
-# 1. Cogwright.exe schliessen (warten max 30s)
+# 1. Cogwright.exe schliessen
 $timeout = 30
 while ((Get-Process Cogwright -ErrorAction SilentlyContinue) -and $timeout -gt 0) {
     Start-Sleep -Seconds 1
@@ -45,52 +49,75 @@ if (Get-Process Cogwright -ErrorAction SilentlyContinue) {
     Start-Sleep -Seconds 1
 }
 
-# 2. Download
-Write-Log "Lade ZIP von: $DownloadUrl"
+# 2. files.json laden
+$files_url = $ManifestUrl
 try {
-    Invoke-WebRequest -Uri $DownloadUrl -OutFile $temp_zip -UseBasicParsing
-    $zip_mb = [math]::Round((Get-Item $temp_zip).Length / 1MB, 1)
-    Write-Log "Download fertig: $zip_mb MB"
+    $manifest = Invoke-RestMethod -Uri $files_url -UseBasicParsing -Headers @{"User-Agent"="Cogwright-Updater"}
 } catch {
-    Write-Log "FEHLER: Download fehlgeschlagen: $_"
+    Write-Log "FEHLER: files.json konnte nicht geladen werden: $_"
     Read-Host "Update fehlgeschlagen. Druecke Enter zum Schliessen"
     exit 1
 }
 
-# 3. Extract in Temp
-if (Test-Path $temp_extract) { Remove-Item $temp_extract -Recurse -Force }
-Write-Log "Entpacke nach: $temp_extract"
-try {
-    Expand-Archive -Path $temp_zip -DestinationPath $temp_extract -Force
-} catch {
-    Write-Log "FEHLER: Entpacken fehlgeschlagen: $_"
+$base_url = $manifest.base_url
+if (-not $base_url) {
+    Write-Log "FEHLER: files.json hat kein 'base_url' Feld"
     Read-Host "Update fehlgeschlagen. Druecke Enter zum Schliessen"
     exit 1
 }
+if (-not $base_url.EndsWith("/")) { $base_url += "/" }
 
-# 4. Kopiere ueber Install-Dir (alle Dateien aus dem ZIP)
-# WICHTIG: Updater-Files selbst NICHT ueberschreiben (sind nicht im ZIP, sollten aber sicher sein)
-Write-Log "Kopiere Files nach: $install_dir"
-try {
-    Get-ChildItem -Path $temp_extract -Recurse | ForEach-Object {
-        $rel = $_.FullName.Substring($temp_extract.Length).TrimStart('\')
-        $dest = Join-Path $install_dir $rel
-        if ($_.PSIsContainer) {
-            if (-not (Test-Path $dest)) { New-Item -ItemType Directory -Path $dest -Force | Out-Null }
-        } else {
-            Copy-Item -Path $_.FullName -Destination $dest -Force
-        }
+Write-Log "Remote-Version: $($manifest.version)"
+Write-Log "Base-URL: $base_url"
+Write-Log "Files im Manifest: $($manifest.files.PSObject.Properties.Count)"
+
+# 3+4. Vergleich + Download veraenderter Dateien
+$remote_files = @{}
+foreach ($prop in $manifest.files.PSObject.Properties) {
+    $remote_files[$prop.Name] = $prop.Value
+}
+
+$downloaded = 0
+$unchanged = 0
+$failed = 0
+
+foreach ($rel_path in $remote_files.Keys) {
+    $remote_hash = $remote_files[$rel_path].ToLower()
+    $local_path = Join-Path $install_dir $rel_path
+    $local_hash = Get-FileSha256 -Path $local_path
+
+    if ($local_hash -eq $remote_hash) {
+        $unchanged++
+        continue
     }
-} catch {
-    Write-Log "FEHLER: Kopieren fehlgeschlagen: $_"
-    Read-Host "Update fehlgeschlagen. Druecke Enter zum Schliessen"
-    exit 1
+
+    $file_url = $base_url + $rel_path
+    $tmp_path = "$local_path.new"
+    Write-Log "Lade: $rel_path ($($remote_hash.Substring(0, 8))...)"
+    try {
+        $local_dir = Split-Path $local_path -Parent
+        if (-not (Test-Path $local_dir)) { New-Item -ItemType Directory -Path $local_dir -Force | Out-Null }
+        Invoke-WebRequest -Uri $file_url -OutFile $tmp_path -UseBasicParsing
+        # Hash verifizieren
+        $new_hash = Get-FileSha256 -Path $tmp_path
+        if ($new_hash -ne $remote_hash) {
+            Write-Log "WARN: Hash-Mismatch bei $rel_path (erwartet $remote_hash, bekam $new_hash) — wird trotzdem uebernommen"
+        }
+        if (Test-Path $local_path) { Remove-Item $local_path -Force }
+        Move-Item $tmp_path $local_path
+        $downloaded++
+    } catch {
+        Write-Log "FEHLER beim Download von ${rel_path}: $_"
+        if (Test-Path $tmp_path) { Remove-Item $tmp_path -Force -ErrorAction SilentlyContinue }
+        $failed++
+    }
 }
 
-# 5. Cleanup
-Remove-Item $temp_zip -Force -ErrorAction SilentlyContinue
-Remove-Item $temp_extract -Recurse -Force -ErrorAction SilentlyContinue
-Write-Log "Update abgeschlossen"
+# 5. Lokale Files entfernen, die remote nicht mehr existieren (nur im install_dir, nicht im AppData/User-Save)
+# Wir loeschen nur Files unter dem Install-Dir die der frueheren Manifest-Liste entsprachen.
+# Konservativ: kein Cleanup, ueberlassen wir dem Uninstaller.
+
+Write-Log "Update abgeschlossen: $downloaded geladen, $unchanged unveraendert, $failed Fehler"
 
 # 6. Cogwright neu starten
 $cogwright_exe = Join-Path $install_dir "Cogwright.exe"

@@ -51,17 +51,17 @@ func _on_update_check() -> void:
 
 func _on_update_download() -> void:
 	AudioManager.ui("click")
-	if UpdateChecker.last_download_url == "":
+	if UpdateChecker.last_remote_version == "":
 		return
-	# Wenn neben Cogwright.exe ein Updater liegt (installierte Version), starten und Game beenden.
-	# Sonst Fallback: Browser oeffnen (ZIP-only Distribution).
+	# Inkrementeller Updater: liest manifest.json (mit File-Hashes), zieht nur Diffs.
+	# Fallback: wenn Updater-BAT fehlt (z.B. ZIP-only-Install), Browser oeffnen.
 	var install_dir: String = OS.get_executable_path().get_base_dir()
 	var updater_bat: String = install_dir.path_join("Cogwright-Update.bat")
 	if FileAccess.file_exists(updater_bat):
-		var args: PackedStringArray = [UpdateChecker.last_download_url, UpdateChecker.last_remote_version]
+		var args: PackedStringArray = [AppVersion.UPDATE_MANIFEST_URL, UpdateChecker.last_remote_version]
 		OS.create_process(updater_bat, args)
 		get_tree().quit()
-	else:
+	elif UpdateChecker.last_download_url != "":
 		OS.shell_open(UpdateChecker.last_download_url)
 
 func _refresh_update_label() -> void:

@@ -99,7 +99,15 @@ if (-not (Test-Path "$build_dir\Cogwright.exe")) {
 }
 
 $size_mb = [math]::Round((Get-Item "$build_dir\Cogwright.exe").Length / 1MB, 1)
-Write-Host "Export erfolgreich: Cogwright.exe ($size_mb MB)" -ForegroundColor Green
+$pck_size_mb = 0
+if (Test-Path "$build_dir\Cogwright.pck") {
+    $pck_size_mb = [math]::Round((Get-Item "$build_dir\Cogwright.pck").Length / 1MB, 1)
+}
+Write-Host "Export erfolgreich: Cogwright.exe ($size_mb MB)$(if ($pck_size_mb -gt 0) { ' + Cogwright.pck (' + $pck_size_mb + ' MB)' })" -ForegroundColor Green
+
+# --- Updater-Files mit ins Build-Verzeichnis kopieren (fuer ZIP + Hash-Manifest) ---
+Copy-Item "$project_root\installer\Cogwright-Update.ps1" "$build_dir\Cogwright-Update.ps1" -Force
+Copy-Item "$project_root\installer\Cogwright-Update.bat" "$build_dir\Cogwright-Update.bat" -Force
 
 # --- ZIP-Distribution ---
 $zip_path = "$release_dir\Cogwright-$version.zip"
@@ -110,15 +118,32 @@ Compress-Archive -Path "$build_dir\*" -DestinationPath $zip_path -CompressionLev
 $zip_size_mb = [math]::Round((Get-Item $zip_path).Length / 1MB, 1)
 Write-Host "ZIP erstellt: Cogwright-$version.zip ($zip_size_mb MB)" -ForegroundColor Green
 
-# --- Manifest fuer Update-Check ---
+# --- Hashes pro Update-File berechnen ---
+$update_files = @("Cogwright.exe", "Cogwright.pck", "Cogwright-Update.ps1", "Cogwright-Update.bat")
+$file_hashes = @{}
+$total_files = 0
+foreach ($f in $update_files) {
+    $p = Join-Path $build_dir $f
+    if (Test-Path $p) {
+        $hash = (Get-FileHash -Algorithm SHA256 -Path $p).Hash.ToLower()
+        $file_hashes[$f] = $hash
+        $total_files++
+    }
+}
+Write-Host "Hashes berechnet fuer $total_files Files" -ForegroundColor Green
+
+# --- Manifest fuer Update-Check (inkrementeller Updater) ---
 $manifest_path = "$release_dir\manifest.json"
-$dl_url = if ($DownloadUrl) { $DownloadUrl } else { "https://github.com/fs-mediatek/cogwright/releases/download/v$version/Cogwright-$version.zip" }
-$manifest = @{
-    version      = $version
-    download_url = $dl_url
-    notes        = "Release v$version - siehe Commit-History fuer Details."
-    released_at  = (Get-Date -Format "yyyy-MM-ddTHH:mm:ssZ")
-} | ConvertTo-Json -Depth 3
+$base_url = "https://github.com/fs-mediatek/cogwright/releases/download/v$version/"
+$dl_url = if ($DownloadUrl) { $DownloadUrl } else { "$base_url" + "Cogwright-Setup-$version.exe" }
+$manifest = [ordered]@{
+    version       = $version
+    notes         = "Release v$version - siehe Commit-History fuer Details."
+    released_at   = (Get-Date -Format "yyyy-MM-ddTHH:mm:ssZ")
+    download_url  = $dl_url
+    base_url      = $base_url
+    files         = $file_hashes
+} | ConvertTo-Json -Depth 4
 $manifest | Out-File -FilePath $manifest_path -Encoding UTF8
 Write-Host "Manifest geschrieben: $manifest_path" -ForegroundColor Green
 

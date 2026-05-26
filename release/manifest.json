@@ -1,6 +1,13 @@
 ﻿{
-    "download_url":  "https://github.com/fs-mediatek/cogwright/releases/download/v0.2.5/Cogwright-0.2.5.zip",
-    "released_at":  "2026-05-26T20:06:59Z",
-    "version":  "0.2.5",
-    "notes":  "Release v0.2.5 - siehe Commit-History fuer Details."
+    "version":  "0.2.6",
+    "notes":  "Release v0.2.6 - siehe Commit-History fuer Details.",
+    "released_at":  "2026-05-26T20:21:56Z",
+    "download_url":  "https://github.com/fs-mediatek/cogwright/releases/download/v0.2.6/Cogwright-Setup-0.2.6.exe",
+    "base_url":  "https://github.com/fs-mediatek/cogwright/releases/download/v0.2.6/",
+    "files":  {
+                  "Cogwright-Update.bat":  "a82ba0b1d11d1d2455284bc734388de2731042cfa6be4393b380e1e7bdba7904",
+                  "Cogwright-Update.ps1":  "97dbe109a998c923a3f742a218696d18765d23c7dc004bf873c6fe42767093f0",
+                  "Cogwright.pck":  "07cdee221721df23e415a8254aa1484a3c3ab8e1641f793979cbfe7887bb28e6",
+                  "Cogwright.exe":  "0c0690839e6c9d181b74290f239c8fce67f5279517454e78a57cd9b580dfa465"
+              }
 }
